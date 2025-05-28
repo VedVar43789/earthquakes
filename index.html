@@ -1,23 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Earthquakes</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      background-color: #f9f9f9;
-      color: #333;
-    }
-    h1 {
-      color: #c0392b;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>When the Earth Shakes: A Journey Through Time and Devastation</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/topojson.v3.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Earthquakes</h1>
-  <p>This page provides information about earthquakes.</p>
+    <!-- Hero Section -->
+    <div id="hero" class="hero-section">
+        <h1 class="hero-title">When the Earth Shakes</h1>
+        <p class="hero-subtitle">
+            A Journey Through Time and Devastation: Exploring 4,000 Years of Earthquake Data
+        </p>
+        <button class="start-button" onclick="startJourney()">Begin the Journey</button>
+        
+        <div class="scroll-indicator">
+            <div style="font-size: 2rem; opacity: 0.6;">↓</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="main-content hidden">
+        <!-- Interactive Timeline Section -->
+        <div class="section">
+            <h2 class="section-title">Timeline of Devastation</h2>
+            <p class="section-description">
+                Travel through time to witness the most catastrophic earthquakes in human history. 
+                Use the controls below to explore different metrics and time periods.
+            </p>
+            
+            <!-- Controls -->
+            <div class="controls">
+                <div class="control-group">
+                    <label class="control-label">Time Period:</label>
+                    <input type="range" id="timeSlider" class="slider" min="0" max="100" value="100">
+                    <span id="timeDisplay" style="min-width: 60px; text-align: center;">2024</span>
+                </div>
+                
+                <button id="playButton" class="play-button">▶ Play</button>
+                
+                <div class="control-group">
+                    <label class="control-label">View by:</label>
+                    <div class="metric-selector">
+                        <button class="metric-button active" data-metric="deaths">Deaths</button>
+                        <button class="metric-button" data-metric="magnitude">Magnitude</button>
+                        <button class="metric-button" data-metric="damage">Damage</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Panel -->
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalEarthquakes">0</div>
+                    <div class="stat-label">Total Earthquakes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDeaths">0</div>
+                    <div class="stat-label">Total Deaths</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="averageMagnitude">0.0</div>
+                    <div class="stat-label">Average Magnitude</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="deadliestYear">-</div>
+                    <div class="stat-label">Deadliest Year</div>
+                </div>
+            </div>
+            
+            <div class="visualization-container">
+                <div class="timeline-container" id="timeline"></div>
+            </div>
+        </div>
+
+        <!-- World Map Section -->
+        <div class="section">
+            <h2 class="section-title">Global Impact Patterns</h2>
+            <p class="section-description">
+                Discover how earthquake impacts vary dramatically across the globe. Size represents magnitude, color intensity shows death toll.
+            </p>
+            
+            <div class="visualization-container">
+                <div class="map-container" id="worldMap"></div>
+            </div>
+        </div>
+
+        <!-- Project Writeup Section -->
+        <div class="section">
+            <h2 class="section-title">Project Development & Challenges</h2>
+            
+            <div class="narrative-section">
+                <h3 class="narrative-title">What We've Accomplished So Far</h3>
+                <p class="narrative-text">
+                    Our team has successfully developed a comprehensive interactive visualization system that transforms over 4,000 years of earthquake data into an engaging explorable explanation. We've implemented a sophisticated timeline visualization that allows users to travel through history, witnessing the progression of seismic disasters from 2150 BCE to 2024 CE, with dynamic scaling and color-coding based on different impact metrics including deaths, magnitude, and economic damage. The interactive world map provides a geographical perspective, enabling users to explore global patterns of earthquake devastation with clickable impact rings that simulate the spreading effects of major seismic events. Additionally, we've created an intuitive control system with play/pause functionality for automated timeline progression, metric switching capabilities, and real-time statistical updates that provide context and scale to the historical data. The entire system is built with modern web technologies including D3.js for data visualization, responsive design principles for cross-device compatibility, and smooth animations that enhance the storytelling experience.
+                </p>
+            </div>
+
+            <div class="narrative-section">
+                <h3 class="narrative-title">Most Challenging Design Aspects</h3>
+                <p class="narrative-text">
+                    The most challenging aspect of our project design lies in effectively balancing data accuracy with emotional impact while maintaining user engagement throughout the exploration experience. Creating meaningful visual representations of human tragedy requires careful consideration of how to present devastating statistics without desensitizing viewers to the real human cost of these disasters, which demands sophisticated color schemes, scaling algorithms, and interaction patterns that respect the gravity of the subject matter. The technical complexity of synchronizing multiple interactive visualizations presents significant challenges, particularly in ensuring that timeline scrubbing, metric switching, and geographical exploration all update seamlessly while maintaining optimal performance across different devices and browsers. Managing the vast temporal and geographical scope of the dataset requires innovative approaches to data aggregation, filtering, and progressive disclosure, as users need to comprehend patterns spanning millennia while still being able to focus on specific events or time periods without cognitive overload. Furthermore, designing an intuitive user interface that guides users through the narrative while allowing for free exploration demands careful attention to information hierarchy, visual affordance, and progressive revelation of insights that build upon each other to create a coherent and impactful storytelling experience.
+                </p>
+            </div>
+        </div>
+
+        <!-- Narrative Insights Section -->
+        <div class="section">
+            <h2 class="section-title">Key Insights</h2>
+            
+            <div class="narrative-section">
+                <h3 class="narrative-title">The Magnitude Paradox</h3>
+                <p class="narrative-text">
+                    One of the most striking revelations from our data exploration is that earthquake magnitude doesn't always correlate with human devastation. 
+                    The 1556 Shaanxi earthquake in China, with a magnitude of 8.0, killed an estimated 830,000 people, while the 1960 Chilean earthquake—
+                    the most powerful ever recorded at magnitude 9.5—resulted in "only" 2,000 deaths. This paradox highlights how factors like 
+                    population density, building standards, and emergency preparedness often matter more than raw seismic power.
+                </p>
+            </div>
+
+            <div class="narrative-section">
+                <h3 class="narrative-title">The Ring of Fire's Deadly Embrace</h3>
+                <p class="narrative-text">
+                    The Pacific Ring of Fire emerges as a consistent threat throughout history, but our visualization reveals surprising patterns. 
+                    While Japan experiences frequent high-magnitude earthquakes, their modern building codes and preparedness have dramatically 
+                    reduced casualties compared to historical events. In contrast, developing regions along the ring continue to face 
+                    disproportionate devastation from smaller earthquakes.
+                </p>
+            </div>
+
+            <div class="narrative-section">
+                <h3 class="narrative-title">Economic vs. Human Cost</h3>
+                <p class="narrative-text">
+                    The relationship between economic damage and human casualties tells a complex story of global inequality. 
+                    Modern earthquakes in developed nations often cause billions in damage but relatively few deaths, while 
+                    earthquakes in developing regions may cause less economic damage but devastating loss of life. This pattern 
+                    reflects the stark reality of how wealth and infrastructure determine survival.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div id="tooltip" class="earthquake-tooltip hidden"></div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
 </body>
-</html>
+</html> 
