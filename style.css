@@ -1,0 +1,1717 @@
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+
+/* CSS Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Root variables */
+:root {
+    --primary-bg: #000000;
+    --secondary-bg: #0a0a0a;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --text-muted: #888888;
+    --accent-red: #ff4444;
+    --accent-blue: #4444ff;
+    --accent-yellow: #ffcc00;
+    --border-color: rgba(255, 255, 255, 0.2);
+    --shadow-heavy: 0 20px 40px rgba(0, 0, 0, 0.8);
+    
+    --font-headline: 'Playfair Display', serif;
+    --font-body: 'Libre Franklin', sans-serif;
+}
+
+/* Base styles */
+html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory; /* Enable snap scrolling for main document */
+}
+
+body {
+    font-family: var(--font-body);
+    background: var(--primary-bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Smooth scrolling performance */
+    will-change: scroll-position;
+}
+
+/* Loading Screen */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: var(--primary-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.seismic-waves {
+    width: 60px;
+    height: 30px;
+    margin: 0 auto 20px;
+    position: relative;
+}
+
+.seismic-waves::before,
+.seismic-waves::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    background: var(--accent-red);
+    border-radius: 50%;
+    animation: seismic-pulse 1.5s infinite ease-in-out;
+}
+
+.seismic-waves::before {
+    left: 0;
+    animation-delay: 0s;
+}
+
+.seismic-waves::after {
+    right: 0;
+    animation-delay: 0.75s;
+}
+
+@keyframes seismic-pulse {
+    0%, 80%, 100% {
+        transform: translateY(-50%) scale(0);
+        opacity: 1;
+    }
+    40% {
+        transform: translateY(-50%) scale(1);
+        opacity: 0.5;
+    }
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    height: 100vh;
+    min-height: 100vh; /* Ensure it's always full height */
+    max-height: 100vh; /* Prevent it from being taller */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+    scroll-snap-align: start; /* Snap to this section */
+    scroll-snap-stop: always; /* Force stop at this section */
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    padding: 0 2rem;
+}
+
+.hero-title {
+    font-family: var(--font-headline);
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #fff 0%, #ff4444 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: hero-title-in 2s ease forwards;
+    opacity: 0;
+    transform: translateY(50px);
+}
+
+.hero-subtitle {
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    font-weight: 300;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    animation: hero-subtitle-in 2s ease 0.5s forwards;
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.scroll-prompt {
+    animation: hero-prompt-in 2s ease 1s forwards;
+    opacity: 0;
+}
+
+.scroll-prompt span {
+    display: block;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.scroll-arrow {
+    font-size: 1.5rem;
+    animation: bounce 2s infinite 2s;
+}
+
+@keyframes hero-title-in {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes hero-subtitle-in {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes hero-prompt-in {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Fixed Visualization Container */
+.viz-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.viz-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.viz-layer.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Globe specific styles */
+#viz-globe {
+    width: 100%;
+    height: 100%;
+}
+
+#viz-globe svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Scrollytelling Main */
+#scrolly {
+    position: relative;
+    z-index: 2;
+    background: transparent;
+}
+
+.story-section {
+    position: relative;
+    scroll-snap-align: start; /* Each section snaps to viewport */
+    scroll-snap-stop: always; /* Force stop at each section */
+}
+
+.step {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    opacity: 0.3;
+    transform: translateY(100px);
+    transition: all 1.2s cubic-bezier(0.25, 0.1, 0.25, 1); /* Smoother, longer transition */
+    scroll-snap-align: center; /* Each step snaps to center */
+}
+
+.step.active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1); /* Faster transition when becoming active */
+}
+
+.text-block {
+    max-width: 600px;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(20px);
+    padding: 3rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-heavy);
+}
+
+.text-block h3 {
+    font-family: var(--font-headline);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.text-block p {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.text-block p:last-child {
+    margin-bottom: 0;
+}
+
+.lead {
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+.highlight {
+    color: var(--accent-red);
+    font-weight: 600;
+}
+
+/* Comparison Cards */
+.comparison-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.comparison-card h4 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.magnitude {
+    font-size: 1.1rem;
+    color: var(--accent-blue);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.deaths {
+    font-size: 1.3rem;
+    color: var(--accent-red);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+/* Timeline Stats */
+.timeline-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.stat .number {
+    font-family: var(--font-headline);
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent-yellow);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat .label {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* Investment Stats */
+.investment-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.stat-large {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.stat-large .number {
+    font-family: var(--font-headline);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 900;
+    color: var(--accent-yellow);
+    line-height: 1;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.stat-large .label {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Conclusion Section */
+.conclusion {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    padding: 6rem 2rem;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+}
+
+.conclusion-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.conclusion h2 {
+    font-family: var(--font-headline);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    margin-bottom: 2rem;
+    line-height: 1.2;
+}
+
+.conclusion p {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    line-height: 1.6;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cta-button {
+    padding: 1rem 2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: var(--font-body);
+}
+
+.cta-button.primary {
+    background: var(--accent-red);
+    color: white;
+}
+
+.cta-button.primary:hover {
+    background: #ff6666;
+    transform: translateY(-2px);
+}
+
+.cta-button.secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.cta-button.secondary:hover {
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+}
+
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    color: var(--text-primary);
+    padding: 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    pointer-events: none;
+    z-index: 1000;
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    max-width: 250px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.tooltip.hidden {
+    display: none;
+}
+
+/* SVG Styles */
+.earthquake-point,
+.earthquake-intro,
+.earthquake-major {
+    cursor: pointer;
+    filter: drop-shadow(0 0 4px rgba(255, 68, 68, 0.6));
+}
+
+.earthquake-point:hover,
+.earthquake-intro:hover,
+.earthquake-major:hover {
+    filter: drop-shadow(0 0 8px rgba(255, 68, 68, 1));
+    transform: scale(1.2);
+    transition: transform 0.2s ease; /* Only transition the transform, not position */
+}
+
+.country-path {
+    transition: filter 0.2s ease; /* Only transition the filter */
+}
+
+.country-path:hover {
+    filter: brightness(1.2);
+}
+
+.ring-of-fire {
+    fill: none;
+    stroke: var(--accent-red);
+    stroke-width: 3;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 6px rgba(255, 68, 68, 0.8));
+}
+
+.earthquake-flow {
+    filter: drop-shadow(0 0 3px rgba(255, 68, 68, 0.5));
+    animation: flowPulse 3s ease-in-out infinite;
+}
+
+.graticule {
+    pointer-events: none;
+}
+
+.globe-sphere {
+    filter: drop-shadow(0 0 20px rgba(30, 58, 138, 0.3));
+}
+
+@keyframes flowPulse {
+    0%, 100% {
+        opacity: 0.4;
+        stroke-width: 1;
+    }
+    50% {
+        opacity: 0.8;
+        stroke-width: 3;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .text-block {
+        padding: 2rem;
+        margin: 0 1rem;
+    }
+    
+    .timeline-stats {
+        flex-direction: column;
+    }
+    
+    .region-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .region-btn {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .investment-stats {
+        gap: 1rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-button {
+        width: 100%;
+        max-width: 250px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .step {
+        padding: 2rem 1rem;
+    }
+    
+    .text-block {
+        padding: 1.5rem;
+    }
+    
+    .conclusion {
+        padding: 4rem 1rem;
+    }
+}
+
+/* Animation utilities */
+.fade-in-up {
+    animation: fadeInUp 1s ease forwards;
+}
+
+.fade-in-down {
+    animation: fadeInDown 1s ease forwards;
+}
+
+.scale-in {
+    animation: scaleIn 0.8s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Print styles */
+@media print {
+    .viz-container,
+    .loading-screen {
+        display: none;
+    }
+    
+    .step {
+        opacity: 1;
+        transform: none;
+        page-break-inside: avoid;
+    }
+}
+
+/* Override Section 1 sticky scroll-snap layout */
+/* Remove previous auto-height override if any */
+.section-globe-layout .content-split {
+    display: flex;
+    height: 100%; /* Use full height of parent container */
+    overflow: hidden; /* Keep this to prevent any unwanted scrollbars */
+}
+
+.section-globe-layout .text-wrapper {
+    flex: 0 0 60%;
+    height: 100%; /* Use full height of content-split */
+    overflow-y: scroll; /* Allow scrolling */
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    /* Hide scrollbar but keep functionality */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    /* Internal scroll snapping for steps */
+    scroll-snap-type: y mandatory;
+}
+
+/* Hide scrollbar for webkit browsers */
+.section-globe-layout .text-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.section-globe-layout .text-wrapper .step {
+    min-height: 100vh; /* Each step is full viewport height */
+    max-height: 100vh; /* Constrain to viewport height */
+    display: flex;
+    align-items: center;
+    padding: 4rem;
+    scroll-snap-align: start; /* Each step snaps within the text wrapper */
+}
+
+/* Make globe-side sticky while text scrolls */
+.section-globe-layout .globe-side {
+    flex: 1;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* GPU acceleration */
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+}
+
+/* Wider text-side internally */
+.section-globe-layout .text-side {
+    width: 100%;
+}
+/* Ensure globe SVG fills its container */
+#section1-globe {
+    height: 100%;
+}
+
+/* Globe Layout Styles (Section 1) */
+.section-globe-layout {
+    position: relative;
+    min-height: 100vh;
+    height: 100vh;
+    max-height: 100vh;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    overflow: hidden; /* Prevent any overflow that might cause awkward scrolling */
+}
+
+.step-globe-layout {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    opacity: 0.3;
+    transform: translateY(50px);
+    transition: all 1s cubic-bezier(0.25, 0.1, 0.25, 1); /* Smoother transition */
+}
+
+.step-globe-layout.active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1); /* Faster when becoming active */
+}
+
+.content-split {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    max-width: none;
+}
+
+.text-side {
+    flex: 0 0 40%;
+    padding: 4rem 3rem;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 10;
+}
+
+.text-side h3 {
+    font-family: var(--font-headline);
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+}
+
+.text-side p {
+    font-size: 1.25rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.text-side .lead {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.text-side .emphasis {
+    color: var(--accent-red);
+    font-weight: 600;
+    font-style: italic;
+}
+
+.globe-side {
+    flex: 1;
+    position: relative;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+    overflow: hidden;
+}
+
+.stats-highlight {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--accent-red);
+}
+
+.stat-number {
+    font-family: var(--font-headline);
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--accent-red);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Responsive styles for globe layout */
+@media (max-width: 1024px) {
+    .content-split {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .text-side {
+        flex: 0 0 auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 3rem 2rem;
+    }
+    
+    .globe-side {
+        flex: 1;
+        min-height: 60vh;
+    }
+    
+    .text-side h3 {
+        font-size: clamp(2rem, 4vw, 2.5rem);
+    }
+    
+    .stats-highlight {
+        flex-direction: row;
+        gap: 1rem;
+    }
+    
+    .stat-item {
+        flex: 1;
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .text-side {
+        padding: 2rem 1.5rem;
+    }
+    
+    .text-side p,
+    .text-side .lead {
+        font-size: 1.1rem;
+    }
+    
+    .stats-highlight {
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .globe-side {
+        min-height: 50vh;
+    }
+}
+
+/* Globe specific styles - Make it look like a proper 3D globe */
+#section1-globe {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.globe-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: transparent;
+    overflow: hidden;
+    cursor: grab;
+    transition: all 0.3s ease;
+    /* Optimize compositing */
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    pointer-events: all; /* Ensure pointer events work */
+}
+
+.globe-container:active {
+    cursor: grabbing;
+    transform: none !important; /* Disable hover scale during dragging */
+}
+
+.globe-container:hover:not(:active) {
+    transform: scale(1.02);
+}
+
+.globe-container svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    /* Enable hardware acceleration */
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    pointer-events: all; /* Ensure SVG receives pointer events */
+    cursor: inherit; /* Inherit cursor from parent */
+}
+
+/* Create the 3D sphere effect with CSS gradients */
+.globe-container::before {
+    display: none;
+}
+
+/* Add atmospheric glow */
+.globe-container::after {
+    display: none;
+}
+
+@keyframes globeGlow {
+    0% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
+/* Zoom Controls */
+.zoom-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 99999; /* Bring to very front - match JS value */
+    pointer-events: auto; /* Ensure they're clickable */
+}
+
+
+.zoom-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-red);
+    color: #fff;
+    font-size: 1.8rem;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    transition: background 0.2s, transform 0.1s;
+    z-index: 99999; /* Ensure individual buttons are also on top */
+    position: relative; /* Enable z-index */
+}
+
+.zoom-btn:hover {
+    background: #ff6666;
+    transform: translateY(-2px);
+}
+
+.zoom-btn:active {
+    transform: translateY(0);
+}
+
+.zoom-controls button {
+    /* Fallback styles if zoom-btn class is not applied */
+    width: 40px;
+    height: 40px;
+    background: var(--accent-red);
+    color: #fff;
+    font-size: 1.8rem;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    transition: background 0.2s, transform 0.1s;
+}
+
+.zoom-controls button:hover {
+    background: #ff6666;
+    transform: translateY(-2px);
+}
+
+.zoom-controls button:active {
+    transform: translateY(0);
+}
+
+/* Region Buttons */
+.region-buttons {
+    display: flex;
+    gap: 15px;
+    z-index: 1000;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.region-btn {
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.region-btn:hover,
+.region-btn.active {
+    background: rgba(255, 68, 68, 0.7);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.region-btn.active {
+    background: rgba(255, 68, 68, 0.9);
+}
+
+#dynamic-region-buttons {
+    position: absolute;
+    top: 160px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    z-index: 1000;
+}
+
+/* Override Section 1 fixes */
+#section1-globe {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ensure the sticky globe keeps viewport height */
+.section-globe-layout #section1-globe {
+    height: 100vh;
+}
+
+/* Widen the narrative text area to 50% of container */
+.section-globe-layout .text-wrapper {
+    flex: 0 0 50%;
+}
+
+/* Allow text-side to fill its wrapper fully */
+.section-globe-layout .text-side {
+    flex: 1 1 auto;
+}
+
+/* CSS Dash Animation for Ring of Fire */
+.ring-of-fire-highlight {
+    animation: dashmove 8s linear infinite; /* Slower animation */
+    /* GPU layer promotion */
+    will-change: stroke-dashoffset;
+    transform: translate3d(0, 0, 0);
+}
+@keyframes dashmove {
+    to { stroke-dashoffset: -30; }
+}
+/* Simplify filter effect: optional ghost layer */
+/* .ring-of-fire-highlight ~ .ring-of-fire-highlight {
+    stroke: #ef4444;
+    opacity: 0.3;
+    stroke-width: 8;
+} */
+
+/* Performance optimizations */
+.section-globe-layout .globe-side {
+    flex: 1;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* GPU acceleration */
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+}
+
+.ring-of-fire-highlight {
+    animation: dashmove 8s linear infinite; /* Slower animation */
+    /* GPU layer promotion */
+    will-change: stroke-dashoffset;
+    transform: translate3d(0, 0, 0);
+}
+
+/* Optimize SVG rendering */
+#section1-globe svg {
+    /* Enable hardware acceleration */
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+}
+
+.globe-container {
+    /* Optimize compositing */
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+}
+
+/* ========================================
+   SECTION 2: CRITICAL QUESTION & RICHTER'S CHALLENGE
+   ======================================== */
+
+/* Section 2 Container Styles */
+.critical-question-section {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+    position: relative;
+    min-height: 100vh; /* Back to normal height since we have separate steps */
+    overflow: hidden;
+}
+
+/* Section 2 Steps */
+.critical-question-section .step {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+}
+
+/* Initial Question Display - for question-only step */
+.question-container {
+    position: relative; /* Changed from absolute since it's now in a normal step */
+    text-align: center;
+    width: 100%;
+    max-width: 900px;
+    padding: 2rem;
+    z-index: 10;
+}
+
+.critical-question-text {
+    font-family: var(--font-headline);
+    font-size: clamp(3rem, 6vw, 5rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin-bottom: 2rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.highlight-deaths {
+    color: var(--accent-red);
+    text-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+    position: relative;
+    display: inline-block;
+}
+
+.question-subtitle {
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    opacity: 0.8;
+    animation: subtle-pulse 3s ease-in-out infinite;
+    margin-bottom: 2rem;
+}
+
+/* Add scroll indicator */
+.scroll-to-earthquake {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0.7;
+    animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+.scroll-to-earthquake span {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.scroll-to-earthquake .arrow-down {
+    font-size: 1.5rem;
+    color: var(--accent-red);
+}
+
+@keyframes bounce-subtle {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    40% {
+        transform: translateX(-50%) translateY(-8px);
+    }
+    60% {
+        transform: translateX(-50%) translateY(-4px);
+    }
+}
+
+/* Earthquake Simulation Overlay */
+.earthquake-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.earthquake-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.screen-cracks {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(45deg, transparent 48%, rgba(255,255,255,0.3) 49%, rgba(255,255,255,0.3) 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(255,255,255,0.2) 49%, rgba(255,255,255,0.2) 51%, transparent 52%),
+        linear-gradient(30deg, transparent 47%, rgba(255,255,255,0.15) 48%, rgba(255,255,255,0.15) 52%, transparent 53%);
+    background-size: 400px 400px, 300px 300px, 250px 250px;
+    background-position: 0 0, 150px 100px, 300px 200px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.screen-cracks.visible {
+    opacity: 1;
+    animation: crack-flicker 0.2s ease-in-out infinite alternate;
+}
+
+@keyframes crack-flicker {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
+}
+
+.earthquake-alert-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.earthquake-alert {
+    font-family: var(--font-headline);
+    font-size: clamp(3rem, 8vw, 6rem);
+    color: var(--accent-red);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 30px rgba(255, 68, 68, 0.8);
+    animation: alert-pulse 0.5s ease-in-out infinite alternate;
+}
+
+.magnitude-indicator {
+    font-family: var(--font-headline);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    color: var(--text-primary);
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    border: 2px solid var(--accent-red);
+    display: inline-block;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes alert-pulse {
+    from { 
+        transform: scale(1);
+        text-shadow: 0 0 30px rgba(255, 68, 68, 0.8);
+    }
+    to { 
+        transform: scale(1.05);
+        text-shadow: 0 0 40px rgba(255, 68, 68, 1);
+    }
+}
+
+/* Earthquake Shaking Animation */
+.earthquake-shake {
+    animation: earthquake-shake 0.1s infinite;
+}
+
+@keyframes earthquake-shake {
+    0% { transform: translate(0px, 0px) rotate(0deg); }
+    10% { transform: translate(-2px, -1px) rotate(-0.5deg); }
+    20% { transform: translate(-3px, 0px) rotate(0.5deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(0.5deg); }
+    50% { transform: translate(-1px, 2px) rotate(-0.5deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-0.5deg); }
+    80% { transform: translate(-1px, -1px) rotate(0.5deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-0.5deg); }
+}
+
+/* Richter Mascot Introduction */
+.richter-introduction {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease, visibility 1s ease;
+    z-index: 20;
+    padding: 2rem;
+}
+
+.richter-introduction.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Richter Character Design */
+.richter-mascot {
+    position: relative;
+    margin-bottom: 2rem;
+    transform: translateY(100vh);
+    animation: richter-enter 1.5s ease-out forwards;
+}
+
+@keyframes richter-enter {
+    to { transform: translateY(0); }
+}
+
+.richter-device {
+    position: relative;
+    width: 120px;
+    height: 140px;
+    margin: 0 auto 1rem;
+}
+
+.richter-base {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 40px;
+    background: linear-gradient(135deg, #444, #666);
+    border-radius: 10px;
+    border: 3px solid #777;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.richter-needle {
+    position: absolute;
+    bottom: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 80px;
+    background: var(--accent-red);
+    border-radius: 2px;
+    transform-origin: bottom center;
+    animation: needle-wiggle 2s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.6);
+}
+
+.richter-needle::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -8px;
+    width: 20px;
+    height: 20px;
+    background: var(--accent-red);
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(255, 68, 68, 0.8);
+}
+
+@keyframes needle-wiggle {
+    0%, 100% { transform: translateX(-50%) rotate(-8deg); }
+    50% { transform: translateX(-50%) rotate(8deg); }
+}
+
+.richter-scale-marks {
+    position: absolute;
+    bottom: 40px;
+    left: 10px;
+    right: 10px;
+    height: 60px;
+    background: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.3) 0px,
+        rgba(255, 255, 255, 0.3) 2px,
+        transparent 2px,
+        transparent 12px
+    );
+}
+
+.richter-face {
+    position: relative;
+    width: 80px;
+    height: 60px;
+    margin: 0 auto;
+    background: #f4d03f;
+    border-radius: 50%;
+    border: 3px solid #d4af37;
+}
+
+.richter-eyes {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 20px;
+}
+
+.eye {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #000;
+    border-radius: 50%;
+    animation: blink 3s ease-in-out infinite;
+}
+
+.left-eye { left: 5px; }
+.right-eye { right: 5px; }
+
+@keyframes blink {
+    0%, 95%, 100% { transform: scaleY(1); }
+    97% { transform: scaleY(0.1); }
+}
+
+.richter-mouth {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 15px;
+    border: 3px solid #000;
+    border-top: none;
+    border-radius: 0 0 30px 30px;
+}
+
+/* Speech Bubble System */
+.speech-sequence {
+    max-width: 600px;
+    margin: 2rem 0;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.speech-bubble {
+    position: relative;
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    padding: 1.5rem 2rem;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.5s ease;
+}
+
+.speech-bubble.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.speech-tail {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 15px solid rgba(255, 255, 255, 0.95);
+}
+
+/* Theoretical Chart Container */
+.theory-chart-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.8s ease;
+}
+
+.theory-chart-container.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.theory-chart-container h4 {
+    color: var(--text-primary);
+    font-family: var(--font-headline);
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+}
+
+.theoretical-chart {
+    width: 100%;
+    height: 200px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.chart-caption {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+/* Interactive Test Button */
+.test-theory-section {
+    text-align: center;
+    margin-top: 3rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 1s ease;
+}
+
+.test-theory-section.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.test-theory-btn {
+    position: relative;
+    background: linear-gradient(135deg, var(--accent-red), #ff6666);
+    color: white;
+    border: none;
+    padding: 1.2rem 3rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: 50px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(255, 68, 68, 0.3);
+    font-family: var(--font-headline);
+}
+
+.test-theory-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255, 68, 68, 0.5);
+}
+
+.test-theory-btn:active {
+    transform: translateY(0);
+}
+
+.btn-text {
+    position: relative;
+    z-index: 2;
+}
+
+.btn-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.6s ease;
+}
+
+.test-theory-btn:hover .btn-glow {
+    width: 300px;
+    height: 300px;
+}
+
+.challenge-text {
+    margin-top: 2rem;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    font-style: italic;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+/* Responsive Design for Section 2 */
+@media (max-width: 768px) {
+    .critical-question-text {
+        font-size: clamp(2rem, 8vw, 3.5rem);
+    }
+    
+    .question-container {
+        padding: 1rem;
+    }
+    
+    .richter-introduction {
+        padding: 1rem;
+    }
+    
+    .speech-bubble {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .theory-chart-container {
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+    
+    .test-theory-btn {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .critical-question-text {
+        font-size: clamp(1.8rem, 7vw, 2.5rem);
+    }
+    
+    .richter-device {
+        width: 100px;
+        height: 120px;
+    }
+    
+    .richter-base {
+        width: 80px;
+        height: 35px;
+    }
+    
+    .richter-needle {
+        height: 65px;
+    }
+}
+
+@keyframes subtle-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+} 
