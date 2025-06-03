@@ -4,9 +4,14 @@ let worldData = null;
 let currentSection = null;
 let tooltip = null;
 
-// Global control flags
+// Global control flags - Remove problematic initialization flags
 let ringIntroInitialized = false;
 let ringRevealInitialized = false;
+
+// State management for cleanup
+let activeTimeouts = [];
+let activeAnimations = [];
+let currentDialogueTimeout = null;
 
 // Configuration
 const config = {
@@ -47,6 +52,103 @@ function throttledUpdate(updateFunction) {
             throttledUpdate(updateFunction);
         }
     });
+}
+
+// Cleanup functions
+function clearActiveTimeouts() {
+    activeTimeouts.forEach(timeout => clearTimeout(timeout));
+    activeTimeouts = [];
+    if (currentDialogueTimeout) {
+        clearTimeout(currentDialogueTimeout);
+        currentDialogueTimeout = null;
+    }
+}
+
+function clearActiveAnimations() {
+    activeAnimations.forEach(animation => {
+        if (animation && animation.interrupt) {
+            animation.interrupt();
+        }
+    });
+    activeAnimations = [];
+}
+
+function resetSection2State() {
+    console.log('Resetting Section 2 state');
+    
+    // Clear any running timeouts and animations
+    clearActiveTimeouts();
+    clearActiveAnimations();
+    
+    // Reset earthquake overlay
+    const earthquakeOverlay = document.getElementById('earthquake-overlay');
+    const richterIntroduction = document.getElementById('richter-introduction');
+    const speechBubble = document.getElementById('speech-bubble');
+    const theoryChart = document.getElementById('theory-chart-container');
+    const testSection = document.getElementById('test-theory-section');
+    const body = document.body;
+    
+    if (earthquakeOverlay) {
+        earthquakeOverlay.classList.remove('active');
+        const screenCracks = earthquakeOverlay.querySelector('.screen-cracks');
+        if (screenCracks) {
+            screenCracks.classList.remove('visible');
+        }
+    }
+    
+    if (richterIntroduction) {
+        richterIntroduction.classList.remove('active');
+    }
+    
+    if (speechBubble) {
+        speechBubble.classList.remove('active');
+    }
+    
+    if (theoryChart) {
+        theoryChart.classList.remove('active');
+        // Clear any D3 charts
+        d3.select('#theoretical-chart').selectAll('*').remove();
+    }
+    
+    if (testSection) {
+        testSection.classList.remove('active');
+    }
+    
+    // Remove earthquake shaking
+    body.classList.remove('earthquake-shake');
+    
+    // Reset dialogue text
+    const richterDialogue = document.getElementById('richter-dialogue');
+    if (richterDialogue) {
+        richterDialogue.textContent = '';
+    }
+}
+
+function resetSection1State() {
+    console.log('Resetting Section 1 state');
+    
+    // Clear timeouts and animations
+    clearActiveTimeouts();
+    clearActiveAnimations();
+    
+    // Reset initialization flags to allow re-triggering
+    ringIntroInitialized = false;
+    ringRevealInitialized = false;
+}
+
+// Cleanup function for when leaving sections
+function cleanupPreviousSection(sectionNum) {
+    console.log('Cleaning up section:', sectionNum);
+    
+    if (sectionNum === '1') {
+        resetSection1State();
+    } else if (sectionNum === '2') {
+        resetSection2State();
+    }
+    
+    // Clear any global timeouts and animations
+    clearActiveTimeouts();
+    clearActiveAnimations();
 }
 
 // Initialize the application
@@ -141,7 +243,7 @@ function createWorldTopology() {
             {
                 type: "Feature",
                 geometry: {
-                    type: "Polygon", 
+                    type: "Polygon",
                     coordinates: [[
                         [-15, 70], [40, 70], [40, 35], [15, 35], [-15, 50], [-15, 70]
                     ]]
@@ -262,9 +364,8 @@ function setupIntersectionObserver() {
                 // Trigger visualization
                 triggerVisualization(stepName, sectionNum);
                 
-                // Allow new transitions after animation completes
-                // For Section 2, we need a longer timeout due to the sequence of animations
-                const transitionDelay = sectionNum === '2' ? 15000 : 600;
+                // Reduced transition delay for better responsiveness
+                const transitionDelay = 300;
                 
                 setTimeout(() => {
                     isTransitioning = false;
@@ -286,6 +387,12 @@ function setupIntersectionObserver() {
 // Trigger appropriate visualization based on step
 function triggerVisualization(stepName, sectionNum) {
     console.log('Triggering visualization:', stepName, 'Section:', sectionNum);
+
+    // Clean up previous section state if switching sections
+    if (currentSection && currentSection !== sectionNum) {
+        cleanupPreviousSection(currentSection);
+    }
+    currentSection = sectionNum;
 
     if (sectionNum === '1') {
         // Keep zoom controls for Section 1 (globe section)
@@ -322,10 +429,39 @@ function triggerVisualization(stepName, sectionNum) {
         
         switch(stepName) {
             case 'question-only':
+                // Reset section 2 state first
+                resetSection2State();
                 showQuestionOnly();
                 break;
             case 'earthquake-richter':
+                // Always allow re-triggering by removing the initialization flag
                 showEarthquakeAndRichter();
+                break;
+            default:
+                break;
+        }
+        return;
+    }
+
+    // ========================================
+    // SECTION 3: THE PREDICTION SHATTER
+    // ========================================
+    if (sectionNum === '3') {
+        switch(stepName) {
+            case 'prediction-display':
+                showUserPrediction();
+                break;
+            case 'data-reveal':
+                setupDataReveal();
+                break;
+            case 'interactive-exploration':
+                setupInteractiveExploration();
+                break;
+            case 'case-studies':
+                showCaseStudies();
+                break;
+            case 'final-revelation':
+                showFinalRevelation();
                 break;
             default:
                 break;
@@ -362,27 +498,19 @@ function showQuestionOnly() {
     const questionContainer = document.getElementById('question-container');
     if (questionContainer) {
         questionContainer.style.opacity = '1';
-        questionContainer.style.transform = 'translate(-50%, -50%)';
-    }
-    
-    // Hide any earthquake/richter elements from previous visits
-    const earthquakeOverlay = document.getElementById('earthquake-overlay');
-    const richterIntroduction = document.getElementById('richter-introduction');
-    
-    if (earthquakeOverlay) {
-        earthquakeOverlay.classList.remove('active');
-    }
-    
-    if (richterIntroduction) {
-        richterIntroduction.classList.remove('active');
+        questionContainer.style.transform = '';
     }
 }
 
 /**
  * Section 2 Step 2: Shows earthquake simulation and Richter introduction
+ * Removed the initialization flag to allow re-triggering
  */
 function showEarthquakeAndRichter() {
     console.log('Section 2 Step 2: Showing earthquake and Richter');
+    
+    // Reset state first to ensure clean start
+    resetSection2State();
     
     // Update state
     section2State.earthquakeStepActive = true;
@@ -408,18 +536,20 @@ function startEarthquakeSimulation() {
     body.classList.add('earthquake-shake');
     
     // Add screen cracks after short delay
-    setTimeout(() => {
+    const cracksTimeout = setTimeout(() => {
         const screenCracks = earthquakeOverlay.querySelector('.screen-cracks');
         if (screenCracks) {
             screenCracks.classList.add('visible');
         }
     }, 500);
+    activeTimeouts.push(cracksTimeout);
     
     // Stop earthquake simulation and introduce Richter
-    setTimeout(() => {
+    const stopTimeout = setTimeout(() => {
         stopEarthquakeSimulation();
         richterEntersAfterEarthquake();
     }, 3000);
+    activeTimeouts.push(stopTimeout);
 }
 
 /**
@@ -450,13 +580,14 @@ function richterEntersAfterEarthquake() {
     richterIntroduction.classList.add('active');
     
     // Start dialogue sequence after Richter enters
-    setTimeout(() => {
+    const dialogueTimeout = setTimeout(() => {
         startRichterDialogueSequence();
     }, 1500);
+    activeTimeouts.push(dialogueTimeout);
 }
 
 /**
- * Manages Richter's dialogue sequence with proper timing
+ * Manages Richter's dialogue sequence with proper timing and cleanup support
  */
 function startRichterDialogueSequence() {
     console.log('Starting Richter dialogue sequence');
@@ -464,74 +595,54 @@ function startRichterDialogueSequence() {
     const speechBubble = document.getElementById('speech-bubble');
     const richterDialogue = document.getElementById('richter-dialogue');
     
+    // Check if elements exist (might have been cleaned up)
+    if (!speechBubble || !richterDialogue) {
+        console.log('Dialogue elements not found, sequence cancelled');
+        return;
+    }
+    
     // Dialogue sequence with timing
     const dialogueLines = [
-        {
-            text: "Whoa! That was a magnitude 7.0 earthquake!",
-            duration: 3000
-        },
-        {
-            text: "You know, for decades, we seismologists have believed in a simple story: bigger earthquakes kill more people. It's so obvious, right?",
-            duration: 4500
-        },
-        {
-            text: "More energy released should mean more destruction, more collapsed buildings, more casualties.",
-            duration: 4000
-        },
-        {
-            text: "This is what we THINK the relationship looks like. Neat, predictable, scientific...",
-            duration: 4000,
-            showChart: true
-        },
-        {
-            text: "But you know what? I've got access to 4,000 years of real earthquake data—every major quake from 2150 BC to today.",
-            duration: 4500
-        },
-        {
-            text: "What do you say we put our beautiful theory to the test?",
-            duration: 3500,
-            showButton: true
-        }
+        { text: "Whoa! Feel that magnitude 7.0 quake? I'm Richter, your seismologist guide.", showChart: false },
+        { text: "Many believe a bigger quake always means more deaths. But what do you think?", showChart: false },
+        { text: "Let's put your theory to paper. Ready to draw your prediction?", showChart: true },
+        { text: "Use the canvas below to sketch the curve you believe fits this relationship.", showChart: false },
+        { text: "When you're satisfied, click 'Save Prediction' to store your guess.", showChart: false, showButton: true }
     ];
     
     let currentDialogue = 0;
     
     function showNextDialogue() {
-        if (currentDialogue >= dialogueLines.length) {
-            console.log('Richter dialogue sequence complete');
+        // Check if sequence was interrupted
+        if (!speechBubble || !richterDialogue || currentDialogue >= dialogueLines.length) {
+            if (currentDialogue >= dialogueLines.length) {
+                console.log('Richter dialogue sequence complete');
+            }
             return;
         }
         
         const line = dialogueLines[currentDialogue];
         
-        // Update speech bubble text with typewriter effect
-        richterDialogue.textContent = '';
+        // Show full text immediately instead of typewriter effect
+        richterDialogue.textContent = line.text;
         speechBubble.classList.add('active');
         
-        typewriterEffect(richterDialogue, line.text, 50, () => {
-            // Show chart if specified
-            if (line.showChart) {
-                setTimeout(() => {
-                    showTheoreticalChart();
-                }, 1000);
-            }
-            
-            // Show button if specified
-            if (line.showButton) {
-                setTimeout(() => {
-                    showTestTheoryButton();
-                }, 1000);
-            }
-            
-            // Move to next dialogue
-            setTimeout(() => {
-                speechBubble.classList.remove('active');
-                setTimeout(() => {
-                    currentDialogue++;
-                    showNextDialogue();
-                }, 500);
-            }, line.duration);
-        });
+        // Show continue button immediately
+        const continueBtn = document.getElementById('continue-btn');
+        continueBtn.style.display = 'inline-block';
+        continueBtn.disabled = false;
+        
+        continueBtn.onclick = () => {
+            // Hide dialogue and Continue
+            speechBubble.classList.remove('active');
+            continueBtn.style.display = 'none';
+            // Show drawing interface if flagged
+            if (line.showChart) showTheoreticalChart();
+            // Show save button if flagged
+            if (line.showButton) showTestTheoryButton();
+            currentDialogue++;
+            showNextDialogue();
+        };
     }
     
     // Start the dialogue sequence
@@ -539,125 +650,97 @@ function startRichterDialogueSequence() {
 }
 
 /**
- * Creates typewriter effect for text
- */
-function typewriterEffect(element, text, speed, callback) {
-    let i = 0;
-    
-    function typeChar() {
-        if (i < text.length) {
-            element.textContent += text.charAt(i);
-            i++;
-            setTimeout(typeChar, speed);
-        } else if (callback) {
-            callback();
-        }
-    }
-    
-    typeChar();
-}
-
-/**
- * Shows theoretical magnitude vs deaths chart
+ * Shows prediction interface
  */
 function showTheoreticalChart() {
-    console.log('Showing theoretical chart');
-    
+    console.log('Showing prediction interface');
     const chartContainer = document.getElementById('theory-chart-container');
     const chartDiv = document.getElementById('theoretical-chart');
-    
     chartContainer.classList.add('active');
+
+    // Prepare the drawing canvas
+    chartDiv.innerHTML = '';
+    chartDiv.style.position = 'relative';
+    const canvas = document.createElement('canvas');
+    canvas.id = 'prediction-canvas';
+    // Set proper canvas dimensions with device pixel ratio for crisp rendering
+    const rect = chartDiv.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.cursor = 'crosshair';
+    chartDiv.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
     
-    // Create simple theoretical chart using D3
-    const margin = { top: 20, right: 30, bottom: 40, left: 50 };
-    const width = 400 - margin.left - margin.right;
-    const height = 160 - margin.bottom - margin.top;
-    
-    // Clear any existing chart
-    d3.select(chartDiv).selectAll('*').remove();
-    
-    const svg = d3.select(chartDiv)
-        .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom);
-    
-    const g = svg.append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-    
-    // Create theoretical data (perfect upward curve)
-    const theoreticalData = [];
-    for (let mag = 6.0; mag <= 9.0; mag += 0.1) {
-        // Exponential relationship: deaths increase exponentially with magnitude
-        const deaths = Math.pow(2, (mag - 6) * 4) * 1000;
-        theoreticalData.push({ magnitude: mag, deaths: deaths });
+    // Draw axes
+    const w = rect.width;
+    const h = rect.height;
+    const margin = 40;
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1;
+    // Y-axis
+    ctx.beginPath(); ctx.moveTo(margin, margin); ctx.lineTo(margin, h - margin); ctx.stroke();
+    // X-axis
+    ctx.beginPath(); ctx.moveTo(margin, h - margin); ctx.lineTo(w - margin, h - margin); ctx.stroke();
+    // X ticks and labels (Magnitude 6.0 to 9.0)
+    ctx.fillStyle = '#ccc'; ctx.font = '12px sans-serif';
+    for (let i = 0; i <= 6; i++) { // 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0
+        const x = margin + (w - 2 * margin) * (i / 6);
+        const val = (6 + i * 0.5).toFixed(1);
+        ctx.beginPath(); ctx.moveTo(x, h - margin); ctx.lineTo(x, h - margin + 5); ctx.stroke();
+        ctx.fillText(val, x - 10, h - margin + 20);
     }
+    // Y ticks and labels (0 to max)
+    for (let i = 0; i <= 4; i++) {
+        const y = h - margin - (h - 2 * margin) * (i / 4);
+        const val = ((i * 250000) / 1000).toFixed(0) + 'k';
+        ctx.beginPath(); ctx.moveTo(margin - 5, y); ctx.lineTo(margin, y); ctx.stroke();
+        ctx.fillText(val, 5, y + 4);
+    }
+    // Axis labels
+    ctx.fillText('Magnitude', w / 2 - 30, h - 10);
+    ctx.save(); ctx.translate(10, h / 2 + 30); ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Deaths', 0, 0); ctx.restore();
     
-    // Scales
-    const xScale = d3.scaleLinear()
-        .domain([6, 9])
-        .range([0, width]);
+    // Set drawing style for user input
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     
-    const yScale = d3.scaleLinear()
-        .domain([0, d3.max(theoreticalData, d => d.deaths)])
-        .range([height, 0]);
-    
-    // Line generator
-    const line = d3.line()
-        .x(d => xScale(d.magnitude))
-        .y(d => yScale(d.deaths))
-        .curve(d3.curveMonotoneX);
-    
-    // Add axes
-    g.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(xScale))
-        .append('text')
-        .attr('x', width / 2)
-        .attr('y', 35)
-        .attr('fill', '#ccc')
-        .style('text-anchor', 'middle')
-        .text('Magnitude');
-    
-    g.append('g')
-        .call(d3.axisLeft(yScale).tickFormat(d => d3.format('.0s')(d)))
-        .append('text')
-        .attr('transform', 'rotate(-90)')
-        .attr('y', -35)
-        .attr('x', -height / 2)
-        .attr('fill', '#ccc')
-        .style('text-anchor', 'middle')
-        .text('Deaths');
-    
-    // Add the line with animation
-    const path = g.append('path')
-        .datum(theoreticalData)
-        .attr('fill', 'none')
-        .attr('stroke', '#ff4444')
-        .attr('stroke-width', 3)
-        .attr('d', line);
-    
-    // Animate the line drawing
-    const totalLength = path.node().getTotalLength();
-    path
-        .attr('stroke-dasharray', totalLength + ' ' + totalLength)
-        .attr('stroke-dashoffset', totalLength)
-        .transition()
-        .duration(2000)
-        .attr('stroke-dashoffset', 0);
-    
-    // Add glow effect
-    g.append('path')
-        .datum(theoreticalData)
-        .attr('fill', 'none')
-        .attr('stroke', '#ff4444')
-        .attr('stroke-width', 6)
-        .attr('opacity', 0.3)
-        .attr('d', line)
-        .attr('stroke-dasharray', totalLength + ' ' + totalLength)
-        .attr('stroke-dashoffset', totalLength)
-        .transition()
-        .duration(2000)
-        .attr('stroke-dashoffset', 0);
+    let isDrawing = false;
+    canvas.addEventListener('pointerdown', e => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        // Constrain to drawing area (within axes)
+        if (x < margin || x > w - margin || y < margin || y > h - margin) return;
+        isDrawing = true;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    });
+    canvas.addEventListener('pointermove', e => {
+        if (!isDrawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        // Constrain to drawing area
+        if (x < margin || x > w - margin || y < margin || y > h - margin) return;
+        ctx.lineTo(x, y);
+        ctx.stroke();
+    });
+    canvas.addEventListener('pointerup', () => { isDrawing = false; });
+    canvas.addEventListener('pointerleave', () => { isDrawing = false; });
+
+    // Initialize storage for prediction
+    window.userPredictionDataURL = null;
 }
 
 /**
@@ -670,20 +753,24 @@ function showTestTheoryButton() {
     const testButton = document.getElementById('test-theory-btn');
     
     testSection.classList.add('active');
+    // Update button to save the user's prediction
+    testButton.textContent = 'Save Prediction';
     
-    // Add click handler for the button
     testButton.addEventListener('click', function() {
-        console.log('Test Theory button clicked - transitioning to next section');
-        
-        // Add click animation
+        console.log('Saving user prediction');
+        // Click animation
         this.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            this.style.transform = '';
-        }, 150);
-        
-        // TODO: Transition to Section 3 (data visualization)
-        // For now, just log the click
-        alert('Ready to test the theory! (Next section will be implemented soon)');
+        setTimeout(() => { this.style.transform = ''; }, 150);
+        // Capture drawing
+        const canvas = document.getElementById('prediction-canvas');
+        if (canvas) {
+            window.userPredictionDataURL = canvas.toDataURL();
+            console.log('User prediction saved:', window.userPredictionDataURL);
+            alert('Your prediction has been saved!');
+            this.disabled = true;
+        } else {
+            alert('No prediction canvas found.');
+        }
     });
 }
 
@@ -852,18 +939,21 @@ function showRingOfFireIntro() {
         });
     
     // Add Ring of Fire highlight
-    setTimeout(() => {
+    const ringTimeout = setTimeout(() => {
         addRingOfFireHighlight(globeGroup, projection, path);
     }, 1000);
+    activeTimeouts.push(ringTimeout);
     
     // Add earthquake points with animations
-    setTimeout(() => {
+    const pointsTimeout = setTimeout(() => {
         addEarthquakePointsWithFlows(globeGroup, projection);
         // Force an immediate update to ensure correct positioning
-        setTimeout(() => {
+        const updateTimeout = setTimeout(() => {
             updateEarthquakePositions(globeGroup, projection);
         }, 100);
+        activeTimeouts.push(updateTimeout);
     }, 2000);
+    activeTimeouts.push(pointsTimeout);
     
     // Enable smooth drag-to-rotate interaction
     let currentRotation = projection.rotate();
@@ -1523,3 +1613,590 @@ window.addEventListener('resize', function() {
 });
 
 console.log('Script loaded successfully'); 
+
+// ========================================
+// SECTION 3: THE PREDICTION SHATTER FUNCTIONS
+// ========================================
+
+/**
+ * Phase 1: Display user's prediction prominently
+ */
+function showUserPrediction() {
+    console.log('Phase 1: Showing user prediction');
+    
+    const chartContainer = document.getElementById('user-prediction-chart');
+    if (!chartContainer || !window.userPredictionDataURL) {
+        console.log('No user prediction found');
+        // Show a default smooth curve as fallback
+        createDefaultPredictionChart(chartContainer);
+        return;
+    }
+    
+    // Clear any existing content
+    chartContainer.innerHTML = '';
+    
+    // Create a canvas to display the user's prediction
+    const canvas = document.createElement('canvas');
+    canvas.width = chartContainer.clientWidth;
+    canvas.height = chartContainer.clientHeight;
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    chartContainer.appendChild(canvas);
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Load and display the user's prediction image
+    const img = new Image();
+    img.onload = function() {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // Add a glowing border effect
+        ctx.strokeStyle = '#4444ff';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    };
+    img.src = window.userPredictionDataURL;
+}
+
+/**
+ * Create a default prediction chart if user hasn't drawn one
+ */
+function createDefaultPredictionChart(container) {
+    if (!container) return;
+    
+    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+    const width = container.clientWidth - margin.left - margin.right;
+    const height = container.clientHeight - margin.top - margin.bottom;
+    
+    d3.select(container).selectAll('*').remove();
+    
+    const svg = d3.select(container)
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom);
+    
+    const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+    
+    // Scales
+    const xScale = d3.scaleLinear()
+        .domain([6, 9])
+        .range([0, width]);
+    
+    const yScale = d3.scaleLinear()
+        .domain([0, 1000000])
+        .range([height, 0]);
+    
+    // Create smooth upward curve data
+    const curveData = [];
+    for (let mag = 6; mag <= 9; mag += 0.1) {
+        const deaths = Math.pow((mag - 5.5), 3) * 10000; // Exponential-like curve
+        curveData.push({ magnitude: mag, deaths: deaths });
+    }
+    
+    const line = d3.line()
+        .x(d => xScale(d.magnitude))
+        .y(d => yScale(d.deaths))
+        .curve(d3.curveBasis);
+    
+    // Add axes
+    g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(xScale))
+        .append('text')
+        .attr('x', width / 2)
+        .attr('y', 40)
+        .attr('fill', '#ccc')
+        .style('text-anchor', 'middle')
+        .text('Magnitude');
+    
+    g.append('g')
+        .call(d3.axisLeft(yScale).tickFormat(d => (d / 1000) + 'k'))
+        .append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', -40)
+        .attr('x', -height / 2)
+        .attr('fill', '#ccc')
+        .style('text-anchor', 'middle')
+        .style('font-size', '14px')
+        .text('Deaths');
+    
+    // Add the curve
+    g.append('path')
+        .datum(curveData)
+        .attr('fill', 'none')
+        .attr('stroke', '#4444ff')
+        .attr('stroke-width', 3)
+        .attr('d', line);
+}
+
+/**
+ * Phase 2: Setup animated data reveal
+ */
+function setupDataReveal() {
+    console.log('Phase 2: Setting up data reveal');
+    
+    // Show user's prediction in mini chart
+    showMiniPrediction();
+    
+    // Setup reveal button
+    const revealBtn = document.getElementById('reveal-data-btn');
+    revealBtn.addEventListener('click', function() {
+        this.disabled = true;
+        this.textContent = 'REVEALING...';
+        animateDataReveal();
+    });
+}
+
+/**
+ * Show user's prediction in the mini chart
+ */
+function showMiniPrediction() {
+    const container = document.getElementById('mini-prediction-chart');
+    
+    // If user has a saved prediction, show it
+    if (window.userPredictionDataURL) {
+        container.innerHTML = '';
+        
+        // Create a canvas to display the user's prediction
+        const canvas = document.createElement('canvas');
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        container.appendChild(canvas);
+        
+        const ctx = canvas.getContext('2d');
+        
+        // Load and display the user's prediction image
+        const img = new Image();
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+        img.src = window.userPredictionDataURL;
+    } else {
+        // Fallback to default curve
+        createDefaultPredictionChart(container);
+    }
+}
+
+/**
+ * Animate the reveal of real earthquake data
+ */
+function animateDataReveal() {
+    console.log('Animating data reveal');
+    
+    const container = document.getElementById('reality-chart');
+    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+    const width = container.clientWidth - margin.left - margin.right;
+    const height = container.clientHeight - margin.top - margin.bottom;
+    
+    d3.select(container).selectAll('*').remove();
+    
+    const svg = d3.select(container)
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom);
+    
+    const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+    
+    // Scales
+    const xScale = d3.scaleLinear()
+        .domain([6, 9])
+        .range([0, width]);
+    
+    const yScale = d3.scaleLinear()
+        .domain([0, 350000])
+        .range([height, 0]);
+    
+    // Add axes
+    g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(xScale))
+        .append('text')
+        .attr('x', width / 2)
+        .attr('y', 40)
+        .attr('fill', '#ccc')
+        .style('text-anchor', 'middle')
+        .text('Magnitude');
+    
+    g.append('g')
+        .call(d3.axisLeft(yScale).tickFormat(d => (d / 1000) + 'k'))
+        .append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', -50)
+        .attr('x', -height / 2)
+        .attr('fill', '#ccc')
+        .style('text-anchor', 'middle')
+        .text('Deaths');
+    
+    // Filter earthquake data for significant earthquakes
+    const significantQuakes = earthquakeData.filter(d => d.magnitude >= 6 && d.deaths > 0);
+    
+    // Show all points at once with a dramatic reveal
+    g.selectAll('.reality-point')
+        .data(significantQuakes)
+        .enter()
+        .append('circle')
+        .attr('class', 'reality-point')
+        .attr('cx', d => xScale(d.magnitude))
+        .attr('cy', d => yScale(d.deaths))
+        .attr('r', 0)
+        .attr('fill', '#ff4444')
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 1)
+        .attr('opacity', 0)
+        .transition()
+        .duration(1000)
+        .delay(500) // Small delay after button click
+        .attr('r', d => Math.sqrt(d.deaths / 10000) + 4) // Slightly bigger for visibility
+        .attr('opacity', 0.8);
+}
+
+/**
+ * Phase 3: Setup interactive exploration
+ */
+function setupInteractiveExploration() {
+    console.log('Phase 3: Setting up interactive exploration');
+    
+    createInteractiveChart();
+    setupFilters();
+}
+
+/**
+ * Create the main interactive chart
+ */
+function createInteractiveChart() {
+    const container = document.getElementById('exploration-chart');
+    const margin = { top: 20, right: 30, bottom: 60, left: 80 };
+    const width = container.clientWidth - margin.left - margin.right;
+    const height = container.clientHeight - margin.top - margin.bottom;
+    
+    d3.select(container).selectAll('*').remove();
+    
+    const svg = d3.select(container)
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom);
+    
+    const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+    
+    // Scales
+    const xScale = d3.scaleLinear()
+        .domain([4, 9.5])
+        .range([0, width]);
+    
+    const yScale = d3.scaleLinear()
+        .domain([1, 350000])
+        .range([height, 0]);
+    
+    // Add axes
+    g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(xScale))
+        .append('text')
+        .attr('x', width / 2)
+        .attr('y', 45)
+        .attr('fill', '#ccc')
+        .style('text-anchor', 'middle')
+        .style('font-size', '14px')
+        .text('Magnitude');
+    
+    g.append('g')
+        .call(d3.axisLeft(yScale).tickFormat(d => d === 1 ? '1' : (d / 1000) + 'k'))
+        .append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', -50)
+        .attr('x', -height / 2)
+        .attr('fill', '#ccc')
+        .style('text-anchor', 'middle')
+        .style('font-size', '14px')
+        .text('Deaths');
+    
+    // Store scales for filter updates
+    window.explorationScales = { xScale, yScale, svg: g, width, height };
+    
+    // Initial data display
+    updateExplorationChart();
+}
+
+/**
+ * Setup filter controls
+ */
+function setupFilters() {
+    // Wealth toggle
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            updateExplorationChart();
+        });
+    });
+    
+    // Time slider
+    const timeSlider = document.getElementById('time-slider');
+    const currentYearDisplay = document.getElementById('current-year');
+    
+    timeSlider.addEventListener('input', function() {
+        currentYearDisplay.textContent = this.value;
+        updateExplorationChart();
+    });
+    
+    // Region selector
+    document.getElementById('region-selector').addEventListener('change', function() {
+        updateExplorationChart();
+    });
+}
+
+/**
+ * Update exploration chart based on filters
+ */
+function updateExplorationChart() {
+    const { xScale, yScale, svg } = window.explorationScales;
+    
+    // Get filter values
+    const wealthFilter = document.querySelector('.toggle-btn.active').dataset.wealth;
+    const maxYear = parseInt(document.getElementById('time-slider').value);
+    const regionFilter = document.getElementById('region-selector').value;
+    
+    // Filter data
+    let filteredData = earthquakeData.filter(d => d.magnitude >= 4 && d.deaths > 0 && d.year <= maxYear);
+    
+    // Apply wealth filter (simplified logic)
+    if (wealthFilter !== 'all') {
+        const poorCountries = ['Haiti', 'Afghanistan', 'Pakistan', 'Iran', 'Turkey', 'Armenia', 'Bangladesh'];
+        const richCountries = ['Japan', 'USA', 'Italy', 'Chile', 'New Zealand', 'Greece'];
+        
+        if (wealthFilter === 'poor') {
+            filteredData = filteredData.filter(d => 
+                poorCountries.some(country => d.location.includes(country))
+            );
+        } else if (wealthFilter === 'rich') {
+            filteredData = filteredData.filter(d => 
+                richCountries.some(country => d.location.includes(country))
+            );
+        }
+    }
+    
+    // Apply region filter
+    if (regionFilter !== 'all') {
+        const regionMap = {
+            'asia': ['Japan', 'China', 'India', 'Iran', 'Afghanistan', 'Pakistan'],
+            'americas': ['USA', 'Chile', 'Peru', 'Mexico', 'Haiti'],
+            'europe': ['Italy', 'Greece', 'Turkey', 'Armenia'],
+            'africa': ['Algeria', 'Morocco'],
+            'oceania': ['New Zealand', 'Papua New Guinea']
+        };
+        
+        if (regionMap[regionFilter]) {
+            filteredData = filteredData.filter(d => 
+                regionMap[regionFilter].some(country => d.location.includes(country))
+            );
+        }
+    }
+    
+    // Update points
+    const circles = svg.selectAll('.data-point')
+        .data(filteredData, d => d.location + d.year);
+    
+    circles.exit()
+        .transition()
+        .duration(300)
+        .attr('r', 0)
+        .attr('opacity', 0)
+        .remove();
+    
+    circles.enter()
+        .append('circle')
+        .attr('class', 'data-point')
+        .attr('cx', d => xScale(d.magnitude))
+        .attr('cy', d => yScale(Math.max(1, d.deaths)))
+        .attr('r', 0)
+        .attr('fill', d => {
+            const poorCountries = ['Haiti', 'Afghanistan', 'Pakistan', 'Iran', 'Turkey'];
+            const isPoor = poorCountries.some(country => d.location.includes(country));
+            return isPoor ? '#ff4444' : '#ffaa44';
+        })
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 1)
+        .attr('opacity', 0)
+        .transition()
+        .duration(500)
+        .attr('r', d => Math.sqrt(d.deaths / 5000) + 2)
+        .attr('opacity', 0.7);
+    
+    circles.transition()
+        .duration(500)
+        .attr('cx', d => xScale(d.magnitude))
+        .attr('cy', d => yScale(Math.max(1, d.deaths)))
+        .attr('r', d => Math.sqrt(d.deaths / 5000) + 2);
+}
+
+/**
+ * Phase 4: Show case studies
+ */
+function showCaseStudies() {
+    console.log('Phase 4: Showing case studies');
+    
+    const caseStudies = [
+        {
+            magnitude: 7.0,
+            deaths: 316000,
+            location: 'Haiti',
+            year: 2010,
+            details: 'Poor building standards, dense population, limited rescue resources'
+        },
+        {
+            magnitude: 9.2,
+            deaths: 131,
+            location: 'Alaska, USA',
+            year: 1964,
+            details: 'Sparse population, modern building codes, excellent emergency response'
+        },
+        {
+            magnitude: 7.4,
+            deaths: 17118,
+            location: 'Turkey',
+            year: 1999,
+            details: 'Urban area, inadequate building standards, nighttime occurrence'
+        },
+        {
+            magnitude: 9.1,
+            deaths: 15894,
+            location: 'Japan',
+            year: 2011,
+            details: 'Advanced warning systems, earthquake-resistant buildings, wealthy nation'
+        }
+    ];
+    
+    const container = document.getElementById('case-study-grid');
+    container.innerHTML = '';
+    
+    caseStudies.forEach(study => {
+        const card = document.createElement('div');
+        card.className = 'case-study-card';
+        card.innerHTML = `
+            <div class="case-study-header">
+                <span class="case-magnitude">M${study.magnitude}</span>
+                <span class="case-deaths">${study.deaths.toLocaleString()} deaths</span>
+            </div>
+            <div class="case-location">${study.location} (${study.year})</div>
+            <div class="case-details">${study.details}</div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+/**
+ * Phase 5: Show final revelation
+ */
+function showFinalRevelation() {
+    console.log('Phase 5: Showing final revelation');
+    
+    createWealthVsDeathsChart();
+}
+
+/**
+ * Create the final revelation chart showing wealth correlation
+ */
+function createWealthVsDeathsChart() {
+    const container = document.getElementById('revelation-chart');
+    const margin = { top: 20, right: 30, bottom: 60, left: 80 };
+    const width = container.clientWidth - margin.left - margin.right;
+    const height = container.clientHeight - margin.top - margin.bottom;
+    
+    d3.select(container).selectAll('*').remove();
+    
+    const svg = d3.select(container)
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom);
+    
+    const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+    
+    // Simplified wealth data (GDP per capita categories)
+    const wealthData = [
+        { country: 'Haiti', wealthLevel: 1, avgDeaths: 50000, color: '#ff4444' },
+        { country: 'Afghanistan', wealthLevel: 2, avgDeaths: 25000, color: '#ff6666' },
+        { country: 'Pakistan', wealthLevel: 3, avgDeaths: 15000, color: '#ff8888' },
+        { country: 'Iran', wealthLevel: 4, avgDeaths: 12000, color: '#ffaa44' },
+        { country: 'Turkey', wealthLevel: 5, avgDeaths: 8000, color: '#ffcc66' },
+        { country: 'Chile', wealthLevel: 7, avgDeaths: 3000, color: '#88ff88' },
+        { country: 'Italy', wealthLevel: 8, avgDeaths: 1500, color: '#66ff66' },
+        { country: 'Japan', wealthLevel: 9, avgDeaths: 800, color: '#44ff44' },
+        { country: 'USA', wealthLevel: 10, avgDeaths: 200, color: '#00ff00' }
+    ];
+    
+    const xScale = d3.scaleLinear()
+        .domain([0, 10])
+        .range([0, width]);
+    
+    const yScale = d3.scaleLinear()
+        .domain([0, 55000])
+        .range([height, 0]);
+    
+    // Add axes
+    g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(xScale))
+        .append('text')
+        .attr('x', width / 2)
+        .attr('y', 45)
+        .attr('fill', '#ccc')
+        .style('text-anchor', 'middle')
+        .style('font-size', '14px')
+        .text('Wealth Level (GDP per capita)');
+    
+    g.append('g')
+        .call(d3.axisLeft(yScale).tickFormat(d => (d / 1000) + 'k'))
+        .append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', -50)
+        .attr('x', -height / 2)
+        .attr('fill', '#ccc')
+        .style('text-anchor', 'middle')
+        .style('font-size', '14px')
+        .text('Average Deaths per Earthquake');
+    
+    // Add trend line
+    const line = d3.line()
+        .x(d => xScale(d.wealthLevel))
+        .y(d => yScale(d.avgDeaths))
+        .curve(d3.curveBasis);
+    
+    g.append('path')
+        .datum(wealthData)
+        .attr('fill', 'none')
+        .attr('stroke', '#ffcc00')
+        .attr('stroke-width', 4)
+        .attr('d', line);
+    
+    // Add points
+    g.selectAll('.wealth-point')
+        .data(wealthData)
+        .enter()
+        .append('circle')
+        .attr('class', 'wealth-point')
+        .attr('cx', d => xScale(d.wealthLevel))
+        .attr('cy', d => yScale(d.avgDeaths))
+        .attr('r', 8)
+        .attr('fill', d => d.color)
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 2);
+    
+    // Add country labels
+    g.selectAll('.country-label')
+        .data(wealthData)
+        .enter()
+        .append('text')
+        .attr('class', 'country-label')
+        .attr('x', d => xScale(d.wealthLevel))
+        .attr('y', d => yScale(d.avgDeaths) - 15)
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#ccc')
+        .style('font-size', '12px')
+        .text(d => d.country);
+}
