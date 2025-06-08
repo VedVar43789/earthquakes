@@ -3,185 +3,482 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Seismic Lottery: Why Your ZIP Code Matters More Than Magnitude</title>
+    <title>When the Ground Shakes: Infrastructure Matters More Than Magnitude</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading" class="loading-screen">
-        <div class="loading-content">
-            <div class="seismic-waves"></div>
-            <p>Loading earthquake data...</p>
+    <header class="header">
+        <div style="display: flex; align-items: center;">
+            <div class="menu-icon" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        <div class="logo">The Seismic Lottery</div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <div class="nav-overlay" onclick="closeMenu()"></div>
+            <nav class="nav-menu">
+            <h3>Earthquake Education Journey</h3>
+            <ul>
+                <li><a href="#" data-section="intro" onclick="navigateToSection('intro'); closeMenu();">🌍 Global Perspective</a></li>
+                <li><a href="#" data-section="main" onclick="navigateToSection('main'); closeMenu();">📊 San Diego Focus</a></li>
+                <li><a href="#" data-section="story" onclick="navigateToSection('story'); closeMenu();">🎓 Learn the Science</a></li>
+                <li><a href="#" data-section="but" onclick="navigateToSection('but'); closeMenu();">🔬 Test Your Intuition</a></li>
+                <li><a href="#" data-section="exploration" onclick="navigateToSection('exploration'); closeMenu();">🔓 Explore the Data</a></li>
+                <li><a href="#" data-section="japan" onclick="navigateToSection('japan'); closeMenu();">🇯🇵 Japan Case Study</a></li>
+            </ul>
+        </nav>
+
+    <!-- Earthquake Tooltip -->
+    <div id="earthquake-tooltip" class="earthquake-tooltip">
+        <h4 id="tooltip-title"></h4>
+        <div class="tooltip-data">
+            <div class="tooltip-row">
+                <span class="tooltip-label">Magnitude:</span>
+                <span class="tooltip-value" id="tooltip-magnitude"></span>
+            </div>
+            <div class="tooltip-row">
+                <span class="tooltip-label">Deaths:</span>
+                <span class="tooltip-value" id="tooltip-deaths"></span>
+            </div>
+            <div class="tooltip-row">
+                <span class="tooltip-label">Date:</span>
+                <span class="tooltip-value" id="tooltip-date"></span>
+            </div>
         </div>
     </div>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="hero-content">
-            <h1 class="hero-title">The Seismic Lottery</h1>
-            <h2 class="hero-subtitle">Why Your ZIP Code Matters More Than Magnitude</h2>
-            <div class="scroll-prompt">
-                <span>Scroll to explore</span>
-                <div class="scroll-arrow">↓</div>
-            </div>
+    <!-- Intro Section with Full Screen Globe -->
+    <section class="intro-section">
+        <div class="intro-globe">
+            <svg id="intro-globe-svg" width="800" height="800"></svg>
         </div>
-        <div class="hero-background" id="hero-viz"></div>
+        <div class="scroll-indicator">
+            <div class="scroll-text">Scroll to explore</div>
+            <svg class="scroll-arrow" fill="white" viewBox="0 0 24 24">
+                <path d="M7.41 8.84L12 13.42l4.59-4.58L18 10.25l-6 6-6-6z"/>
+            </svg>
+        </div>
     </section>
 
-    <!-- Fixed Visualization Container -->
-    <div id="viz-container" class="viz-container">
-        <div id="viz-globe" class="viz-layer"></div>
-    </div>
-
-    <!-- Scrollytelling Sections -->
-    <main id="scrolly">
+    <!-- Main Article Section -->
+    <section class="main-section">
+        <div class="content-left">
+            <div class="section-label">DATA INVESTIGATION</div>
+            <h1 class="main-headline">The <span class="hidden-story">Seismic Lottery</span>: Why Infrastructure Beats Magnitude</h1>
+            <p class="subheadline">In the seismic lottery, it's not the size of the shake that determines your fate—it's where you bought your ticket. The same magnitude earthquake can kill thousands in one country while barely making headlines in another.</p>
+            
+            <div class="san-diego-callout">
+                <h3>April 14th, 2025: San Diego wins the seismic lottery.</h3>
+                <p>A 5.2 magnitude earthquake struck near the city, yet life continued almost normally. Meanwhile, earthquakes of similar strength have devastated communities worldwide. What makes the difference? Infrastructure resilience—the ultimate lottery ticket in seismic survival.</p>
+            </div>
+        </div>
         
-        <!-- Section 1: The Ring of Fire Opens -->
-        <section class="story-section section-globe-layout" data-section="1">
-            <div class="content-split">
-                <div class="text-wrapper">
-                    <div class="step" data-step="ring-intro">
-                        <div class="text-side">
-                            <h3>When the Earth Shakes</h3>
-                            <p class="lead">Every earthquake is measured on a scale that seems to promise certainty: the Richter magnitude. The higher the number, the more devastating the quake.</p>
-                            <p>This glowing ring around the Pacific—the Ring of Fire—unleashes <span class="highlight">90%</span> of the world's most powerful earthquakes. Here, magnitude <span class="highlight">8.0</span> and <span class="highlight">9.0</span> quakes regularly tear through the seafloor, sending shockwaves across entire continents.</p>
-                            <p>Scientists can measure these forces with precision. But measuring the shaking is only the beginning of the story.</p>
+        <div class="globe-container" id="main-globe-container">
+            <svg id="globe" width="100%" height="100%" viewBox="0 0 800 800"></svg>
+        </div>
+
+        <div class="data-points">
+            <div class="data-point">
+                <div class="data-number">23K+</div>
+                <div class="data-label">Earthquakes Analyzed</div>
+            </div>
+            <div class="data-point">
+                <div class="data-number">190+</div>
+                <div class="data-label">Countries Studied</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn active" onclick="showMagnitude()">Magnitude</button>
+            <button class="control-btn" onclick="showCasualties()">Casualties</button>
+            <button class="control-btn" onclick="toggleAutoRotate()">Auto Rotate</button>
+        </div>
+    </section>
+
+    <!-- New Story Section - Interactive Earthquake Education -->
+    <section class="story-section">
+        <div class="slideshow-container" id="earthquake-slideshow">
+            <!-- Slide 1: Introduction -->
+            <div class="slide earthquake-slide">
+                <video class="background-video" autoplay muted loop>
+                    <source src="and-story/and_part1.mp4" type="video/mp4">
+                </video>
+                <div class="slide-content">
+                    <h1>But first, let's understand<br>
+                        how earthquakes actually work.<br><br>
+                        The story begins deep underground,<br>
+                        where immense forces have been<br>
+                        building for decades.</h1>
+                </div>
+            </div>
+
+            <!-- Slide 2: Pressure Buildup -->
+            <div class="slide earthquake-slide">
+                <video class="background-video" autoplay muted loop>
+                    <source src="and-story/and_part2.mp4" type="video/mp4">
+                </video>
+                <div class="slide-content">
+                    <h1>Tectonic Pressure Buildup</h1>
+                    <p>For years, decades, even centuries, massive tectonic plates lock together along fault lines. Stress accumulates as they attempt to move, building enormous pressure that must eventually be released.</p>
+                    
+                    <div class="earthquake-stats">
+                        <div class="stat-box">
+                            <span class="stat-number">100+</span>
+                            <span class="stat-label">Years of Buildup</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">50+ km</span>
+                            <span class="stat-label">Typical Depth</span>
                         </div>
                     </div>
-                    <div class="step" data-step="ring-reveal">
-                        <div class="text-side">
-                            <h3>The Magnitude Assumption</h3>
-                            <p>For decades, we've operated under a simple assumption: <span class="highlight">bigger earthquakes kill more people</span>. It makes intuitive sense—more energy released should mean more destruction, more collapsed buildings, more casualties.</p>
-                            <p>A magnitude 7.0 earthquake releases the energy of <span class="highlight">32 nuclear bombs</span>. A magnitude 8.0 releases <span class="highlight">1,000 times more</span>. A magnitude 9.0? That's equivalent to <span class="highlight">32,000 nuclear bombs</span> detonating simultaneously.</p>
-                            <div class="stats-highlight">
-                                <div class="stat-item">
-                                    <span class="stat-number">32,000x</span>
-                                    <span class="stat-label">Nuclear bomb energy in a 9.0 quake</span>
+                </div>
+            </div>
+
+            <!-- Slide 3: Energy Release -->
+            <div class="slide earthquake-slide">
+                <video class="background-video" autoplay muted loop>
+                    <source src="and-story/and_part5.mp4" type="video/mp4">
+                </video>
+                <div class="slide-content">
+                    <h1>Catastrophic Energy Release</h1>
+                    <p>When the fault finally snaps, all that stored energy is released instantaneously. Seismic waves race outward at incredible speeds, carrying energy equivalent to multiple nuclear bombs.</p>
+                    
+                    <div class="earthquake-stats">
+                        <div class="stat-box">
+                            <span class="stat-number">8 km/s</span>
+                            <span class="stat-label">Wave Speed</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">10¹⁶</span>
+                            <span class="stat-label">Joules Released</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Interactive Energy Calculator -->
+            <div class="slide earthquake-slide">
+                <div class="slide-content">
+                    <h1>How Much Energy Is That?</h1>
+                    <p>Use the controls to compare earthquake energy with nuclear explosions!</p>
+                    
+                    <div class="energy-calculator">
+                        <!-- Left Side: Controls -->
+                        <div class="calculator-left">
+                            <div class="calculator-controls">
+                                <div class="control-group">
+                                    <label for="magnitude-slider">Magnitude:</label>
+                                    <input type="range" id="magnitude-slider" min="5.0" max="9.5" step="0.1" value="7.0">
+                                    <span id="magnitude-display">7.0</span>
                                 </div>
-                                <div class="stat-item">
-                                    <span class="stat-number">1,000x</span>
-                                    <span class="stat-label">Energy difference between 7.0 and 8.0</span>
+                                
+                                <div class="control-group">
+                                    <label for="depth-slider">Depth (km):</label>
+                                    <input type="range" id="depth-slider" min="1" max="700" value="50">
+                                    <span id="depth-display">50</span>
+                                </div>
+                                
+                                <div class="historical-selector">
+                                    <label for="historical-earthquake">Or choose a historical earthquake:</label>
+                                    <select id="historical-earthquake">
+                                        <option value="custom">Custom Values</option>
+                                        <option value="san-diego" data-mag="5.2" data-depth="15">San Diego 2025 (5.2, 15km)</option>
+                                        <option value="northridge" data-mag="6.7" data-depth="19">Northridge 1994 (6.7, 19km)</option>
+                                        <option value="loma-prieta" data-mag="6.9" data-depth="18">Loma Prieta 1989 (6.9, 18km)</option>
+                                        <option value="kobe" data-mag="6.9" data-depth="16">Kobe Japan 1995 (6.9, 16km)</option>
+                                        <option value="haiti" data-mag="7.0" data-depth="13">Haiti 2010 (7.0, 13km)</option>
+                                        <option value="kashmir" data-mag="7.6" data-depth="26">Kashmir 2005 (7.6, 26km)</option>
+                                        <option value="turkey" data-mag="7.8" data-depth="18">Turkey-Syria 2023 (7.8, 18km)</option>
+                                        <option value="san-francisco" data-mag="7.9" data-depth="25">San Francisco 1906 (7.9, 25km)</option>
+                                        <option value="sichuan" data-mag="8.0" data-depth="19">Sichuan China 2008 (8.0, 19km)</option>
+                                        <option value="mexico-city" data-mag="8.0" data-depth="333">Mexico City 1985 (8.0, 333km)</option>
+                                        <option value="sumatra" data-mag="9.1" data-depth="30">Sumatra 2004 (9.1, 30km)</option>
+                                        <option value="japan" data-mag="9.1" data-depth="32">Japan Tohoku 2011 (9.1, 32km)</option>
+                                        <option value="alaska" data-mag="9.2" data-depth="25">Alaska 1964 (9.2, 25km)</option>
+                                        <option value="chile" data-mag="9.5" data-depth="33">Chile 1960 (9.5, 33km)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="energy-summary">
+                                <div class="energy-item">
+                                    <span class="energy-label">Total Energy Released</span>
+                                    <span class="energy-value" id="total-energy">1.0 × 10¹⁵ J</span>
+                                </div>
+                                <div class="energy-item">
+                                    <span class="energy-label">Surface Impact Level</span>
+                                    <span class="energy-value" id="energy-comparison">Strong (5.2)</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Side: Bomb Visualization -->
+                        <div class="calculator-right">
+                            <div class="bomb-visualization">
+                                <div class="bomb-count-display" id="bomb-equivalent">32</div>
+                                <div class="bomb-explanation">Hiroshima bombs (surface effect)</div>
+                                <div class="bomb-grid" id="bomb-grid">
+                                    <!-- Nuclear bomb icons will be generated here -->
+                                </div>
+                                <div class="bomb-explanation">Each 💣 = 100 bombs</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Prediction Interface -->
+            <div class="slide earthquake-slide">
+                <div class="slide-content">
+                    <h1>Your Prediction</h1>
+                    <p>Predict the relationship between magnitude and deaths.</p>
+                    
+                    <div class="prediction-interface">
+                        <div class="prediction-instructions">
+                            <h3>Draw Your Prediction</h3>
+                            <p>Draw how you think deaths change with magnitude.</p>
+                            <div class="prediction-controls">
+                                <button id="clear-prediction" class="prediction-btn">Clear & Redraw</button>
+                                <button id="submit-prediction" class="prediction-btn primary">Submit Prediction</button>
+                            </div>
+                        </div>
+                        
+                        <div class="prediction-chart-container">
+                            <svg id="prediction-chart" width="600" height="300"></svg>
+                        </div>
+                        
+                        <div class="prediction-feedback" id="prediction-feedback" style="display: none;">
+                            <h3>Your Prediction Is Saved!</h3>
+                            <p>Correlation strength: <span id="user-correlation">0.00</span></p>
+                            <p>We'll compare this with real data shortly...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide Indicators -->
+        <div class="slide-indicator">
+            <div class="indicator-dot active" onclick="goToEarthquakeSlide(0)"></div>
+            <div class="indicator-dot" onclick="goToEarthquakeSlide(1)"></div>
+            <div class="indicator-dot" onclick="goToEarthquakeSlide(2)"></div>
+            <div class="indicator-dot" onclick="goToEarthquakeSlide(3)"></div>
+            <div class="indicator-dot" onclick="goToEarthquakeSlide(4)"></div>
+        </div>
+    </section>
+
+    <!-- But Section - Interactive Data Exploration -->
+    <section class="but-section">
+        <div class="but-content">
+            <p class="but-subtitle">Let's see the real relationship between earthquake magnitude and devastation</p>
+            
+            <div class="data-exploration">
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label for="magnitude-range">Magnitude Range</label>
+                            <div class="dual-slider" id="magnitude-slider">
+                                <input type="range" id="magnitude-min" min="0" max="10" value="0" step="0.1">
+                                <input type="range" id="magnitude-max" min="0" max="10" value="10" step="0.1">
+                                <div class="slider-track"></div>
+                            </div>
+                            <div class="range-display">
+                                <span id="magnitude-range-display">0.0 - 10.0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="deaths-range">Deaths Range</label>
+                            <div class="dual-slider" id="deaths-slider">
+                                <input type="range" id="deaths-min" min="0" max="1000000" value="0" step="1000">
+                                <input type="range" id="deaths-max" min="0" max="1000000" value="330000" step="1000">
+                                <div class="slider-track"></div>
+                            </div>
+                            <div class="range-display">
+                                <span id="deaths-range-display">0 - 330,000</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label for="country-filter">Country Filter</label>
+                            <select id="country-filter">
+                                <option value="">All Countries</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group toggle-group">
+                            <label>
+                                <input type="checkbox" id="show-prediction">
+                                <span class="toggle-switch"></span>
+                                Show Your Prediction
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+
+                
+                <div class="chart-container">
+                    <div id="earthquake-scatter-chart"></div>
+                    <div class="chart-info">
+                        <div class="info-item">
+                            <span class="info-label">Showing:</span>
+                            <span id="data-count">0 earthquakes</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-note">Scroll to zoom • Press Shift key and drag to select</span>
+                        </div>
+                        
+                        <!-- Selection Statistics - appears when selection is made -->
+                        <div class="selection-stats" id="selection-stats" style="display: none;">
+                            <div class="selection-header">
+                                <h4>📊 Selection Analysis</h4>
+                                <button id="clear-selection" class="clear-selection-btn">×</button>
+                            </div>
+                            <div class="selection-grid">
+                                <div class="selection-item">
+                                    <span class="selection-label">Selected</span>
+                                    <span class="selection-value" id="selected-count">0</span>
+                                </div>
+                                <div class="selection-item">
+                                    <span class="selection-label">Magnitude Range</span>
+                                    <span class="selection-value" id="selected-mag-range">0.0 - 0.0</span>
+                                </div>
+                                <div class="selection-item">
+                                    <span class="selection-label">Total Deaths</span>
+                                    <span class="selection-value" id="selected-total-deaths">0</span>
+                                </div>
+                                <div class="selection-item">
+                                    <span class="selection-label">Avg Deaths</span>
+                                    <span class="selection-value" id="selected-avg-deaths">0</span>
+                                </div>
+                                <div class="selection-item">
+                                    <span class="selection-label">Deadliest</span>
+                                    <span class="selection-value" id="selected-deadliest">None</span>
+                                </div>
+                                <div class="selection-item">
+                                    <span class="selection-label">Countries</span>
+                                    <span class="selection-value" id="selected-countries">0</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="step" data-step="cities-on-fire">
-                        <div class="text-side">
-                            <h3>Cities in the Crosshairs</h3>
-                            <p class="lead">Around this Ring of Fire, <span class="highlight">2.5 billion people</span> live within striking distance of these massive earthquakes.</p>
-                            <p>Tokyo, with 37 million residents, sits atop one of the most seismically active zones on Earth. San Francisco straddles the San Andreas Fault. Jakarta, Manila, Santiago—each a sprawling metropolis built directly on the geological firing line.</p>
-                            <p>When the big ones hit these cities, the math seems straightforward: more magnitude means more deaths. The largest earthquakes should create the largest disasters.</p>
-                        </div>
-                    </div>
-                    <div class="step" data-step="dangerous-paradise">
-                        <div class="text-side">
-                            <h3>The Seismic Lottery</h3>
-                            <p>In this lottery of tectonic chance, your odds of survival seem to depend on the draw of magnitude. Live in a place that gets hit by a <span class="highlight">9.0</span> and face catastrophe. Experience a <span class="highlight">6.0</span> and count yourself lucky.</p>
-                            <p>Emergency planners prepare for the worst-case scenarios. Building codes factor in expected magnitudes. Insurance companies calculate premiums based on seismic intensity maps.</p>
-                            <p class="emphasis">Everything revolves around that single number: how hard will the earth shake?</p>
-                        </div>
-                    </div>
-                    <div class="step" data-step="human-vulnerability">
-                        <div class="text-side">
-                            <h3>Testing the Theory</h3>
-                            <p class="lead">If magnitude determines death toll, then history's deadliest earthquakes should be the most powerful ones.</p>
-                            <p>Every red dot you see is a data point. Each earthquake tests our simple assumption: <span class="highlight">bigger shaking = more deaths</span>.</p>
-                            <p>The Ring of Fire has given us the full spectrum—from gentle magnitude 4.0 tremors to earth-splitting 9.0 giants. Logic says the pattern should be obvious: the biggest earthquakes should top the casualty lists.</p>
-                            <div class="stats-highlight">
-                                <div class="stat-item">
-                                    <span class="stat-number">2.5B</span>
-                                    <span class="stat-label">People in earthquake zones</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-number">?</span>
-                                    <span class="stat-label">Does magnitude predict deaths?</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="globe-side" id="section1-globe">
-                    <div class="globe-container"></div>
                 </div>
             </div>
-        </section>
+            
 
-        <!-- Section 2: The Critical Question -->
-        <section class="story-section critical-question-section" data-section="2">
-            <!-- Step 1: Just the Critical Question -->
-            <div class="step" data-step="question-only">
-                <div class="question-container" id="question-container">
-                    <h2 class="critical-question-text">
-                        Does magnitude accurately predict 
-                        <span class="highlight-deaths">deaths</span>?
-                    </h2>
-                </div>
-                <!-- Scroll Indicator for Step 1 -->
-                <div class="scroll-to-earthquake">
-                    <span>Scroll more to continue</span>
-                    <div class="arrow-down">↓</div>
-                </div>
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Section 3: Earthquake Simulation & Richter Introduction -->
-        <section class="story-section critical-question-section" data-section="2">
-            <div class="step" data-step="earthquake-richter">
-                <!-- Earthquake Simulation Overlay -->
-                <div class="earthquake-overlay" id="earthquake-overlay">
-                    <div class="screen-cracks"></div>
-                    <div class="earthquake-alert-content">
-                        <h3 class="earthquake-alert">EARTHQUAKE!</h3>
-                        <div class="magnitude-indicator">MAGNITUDE 7.0</div>
-                    </div>
-                </div>
+    
 
-                <!-- Richter Introduction Container -->
-                <div id="richter-introduction" class="richter-introduction">
-                    <!-- Richter Mascot & Speech Bubble Wrapper -->
-                    <div class="richter-mascot-wrapper" id="richter-mascot-wrapper">
-                        <img src="result.png" alt="Richter Mascot" class="richter-mascot-image" id="richter-mascot-image" />
-                        <div class="speech-sequence" id="speech-sequence">
-                            <div class="speech-bubble" id="speech-bubble">
-                                <p id="richter-dialogue"></p>
-                                <div class="speech-tail"></div>
-                            </div>
-                            <button id="continue-btn" class="continue-btn" style="display:none;">Continue</button>
-                        </div>
-                    </div>
+           <!-- Data Exploration Deep Dive Section -->
+       <section class="exploration-section">
+           <div class="exploration-content">
+               <div class="exploration-text-compact">
+                   <p><strong>Wow!</strong> It seems there is <strong>no real pattern</strong> to be found between magnitude and death. In fact, on the surface these seems pretty <strong>random</strong>! Don't believe us? Feel free to <strong>splice the data however you want</strong>.</p>
+               </div>
+               
+               <!-- Exact Copy of Data Exploration (Unlocked) -->
+               <div class="data-exploration">
+                   <!-- Control Panel -->
+                   <div class="control-panel">
+                       <div class="control-row">
+                           <div class="control-group">
+                               <label for="magnitude-filter">Magnitude Range</label>
+                               <div class="dual-slider">
+                                   <input type="range" id="magnitude-min-explore" min="0" max="10" value="0" step="0.1">
+                                   <input type="range" id="magnitude-max-explore" min="0" max="10" value="10" step="0.1">
+                               </div>
+                               <div class="range-display" id="magnitude-range-display-explore">0 - 10</div>
+                           </div>
+                           
+                           <div class="control-group">
+                               <label for="deaths-filter">Deaths Range</label>
+                               <div class="dual-slider">
+                                   <input type="range" id="deaths-min-explore" min="0" max="1000000" value="0" step="1000">
+                                   <input type="range" id="deaths-max-explore" min="0" max="1000000" value="1000000" step="1000">
+                               </div>
+                               <div class="range-display" id="deaths-range-display-explore">0 - 1,000,000</div>
+                           </div>
+                       </div>
+                       
+                       <div class="control-row">
+                           <div class="control-group">
+                               <label for="country-filter-explore">Filter by Country</label>
+                               <select id="country-filter-explore">
+                                   <option value="">All Countries</option>
+                               </select>
+                           </div>
+                           
+                           <div class="control-group toggle-group">
+                               <label for="show-prediction-explore">
+                                   <input type="checkbox" id="show-prediction-explore">
+                                   <span class="toggle-switch"></span>
+                                   Show Your Prediction
+                               </label>
+                           </div>
+                       </div>
+                   </div>
+                   
+                   <!-- Chart Container -->
+                   <div class="chart-container">
+                       <div id="earthquake-scatter-chart-explore"></div>
+                       <div class="chart-info">
+                           <div class="info-item">
+                               <span class="info-label">Data Points:</span>
+                               <span id="data-count-explore">0</span>
+                           </div>
+                           <div class="info-item">
+                               <span class="info-label">Hold Shift + Drag:</span>
+                               <span>Select earthquakes</span>
+                           </div>
+                           <div class="info-note">
+                               All controls unlocked - explore freely!
+                           </div>
+                       </div>
+                       
+                       <!-- Selection Statistics -->
+                       <div id="selection-stats-explore" class="selection-stats" style="display: none;">
+                           <div class="selection-header">
+                               <h4>Selected Earthquakes</h4>
+                               <button id="clear-selection-explore" class="clear-selection-btn">×</button>
+                           </div>
+                           <div class="selection-grid">
+                               <div class="selection-item">
+                                   <span class="selection-label">Count</span>
+                                   <span class="selection-value" id="selection-count-explore">0</span>
+                               </div>
+                               <div class="selection-item">
+                                   <span class="selection-label">Avg Magnitude</span>
+                                   <span class="selection-value" id="selection-avg-mag-explore">0</span>
+                               </div>
+                               <div class="selection-item">
+                                   <span class="selection-label">Avg Deaths</span>
+                                   <span class="selection-value" id="selection-avg-deaths-explore">0</span>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+               
+               <div class="exploration-conclusion-compact">
+                   <p>But are these death tolls really <strong>random</strong>? To explore this first let's go to <strong style="color: #ff6b47;">Japan</strong>!</p>
+               </div>
+           </div>
+       </section>
 
-                    <!-- Theoretical Chart Display -->
-                    <div class="theory-chart-container" id="theory-chart-container">
-                        <h4>Draw what <em>YOU</em> think the relationship looks like:</h4>
-                        <div class="theoretical-chart" id="theoretical-chart">
-                            <!-- Canvas for drawing will be created here -->
-                        </div>
-                        <p class="chart-caption">Use the canvas below to sketch your prediction.</p>
-                    </div>
-
-                    <!-- Interactive Test Button -->
-                    <div class="test-theory-section" id="test-theory-section">
-                        <button class="test-theory-btn" id="test-theory-btn">
-                            <span class="btn-text">TEST THE THEORY</span>
-                            <div class="btn-glow"></div>
-                        </button>
-                        <p class="challenge-text">
-                            "I bet when we look at the real data, we'll see this perfect pattern. 
-                            Magnitude goes up, deaths go up. Simple, right? Let's find out..."
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Tooltip -->
-    <div id="tooltip" class="tooltip hidden"></div>
-
-    <!-- Scripts -->
+    <script src="https://unpkg.com/topojson@3"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/d3-geo-projection@4"></script>
     <script src="script.js"></script>
 </body>
-</html> 
+</html>
