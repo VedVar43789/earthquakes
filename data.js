@@ -528,8 +528,14 @@ function updateVisualizationForStep(stepName, isScrollingUp = false, wasInteract
             hideSidebar(); // Don't show sidebar for this section
             clearSearchHighlighting();
             
-            // Initialize infrastructure bar charts
+            // Initialize infrastructure bar charts immediately when section is triggered
+            console.log('Triggered infrastructure-data-visualization section - initializing charts immediately');
             initializeInfrastructureBarCharts();
+            
+            // Add animation classes after charts are created
+            setTimeout(() => {
+                addChartAnimationClasses();
+            }, 400); // Wait for charts to be created (200ms init + 200ms buffer)
             break;
     }
 }
@@ -2446,12 +2452,145 @@ function hideTooltip() {
 }
 
 function initializeInfrastructureBarCharts() {
-    // Initialize the three interactive bar charts
+    // Initialize the three interactive bar charts with error handling
     setTimeout(() => {
-        createDeathsBarChart();
-        createDamageBarChart();
-        createRecoveryBarChart();
-    }, 300);
+        try {
+            console.log('Initializing infrastructure bar charts...');
+            
+            // Clean up any existing tooltips first
+            d3.selectAll('.bar-chart-tooltip').remove();
+            
+            // Check if containers exist
+            const containers = ['deathsChart', 'damageChart', 'recoveryChart'];
+            const availableContainers = containers.filter(id => document.getElementById(id));
+            
+            if (availableContainers.length === 0) {
+                console.warn('No chart containers found. Available IDs:', 
+                    Array.from(document.querySelectorAll('[id*="Chart"]')).map(el => el.id));
+                return;
+            }
+            
+            console.log('Found chart containers:', availableContainers);
+            
+            // Create charts immediately
+            createDeathsBarChart();
+            createDamageBarChart();
+            createRecoveryBarChart();
+            
+            console.log('Infrastructure bar charts initialized successfully');
+        } catch (error) {
+            console.error('Error initializing infrastructure bar charts:', error);
+        }
+    }, 200); // Shorter delay for faster response
+}
+
+function initializeInfrastructureBarChartsWithVisibility() {
+    console.log('Setting up infrastructure bar charts with visibility detection...');
+    
+    // Wait for DOM to be ready
+    setTimeout(() => {
+        const infrastructureSection = document.querySelector('[data-step="infrastructure-data-visualization"]');
+        
+        if (!infrastructureSection) {
+            console.warn('Infrastructure data visualization section not found, trying by class...');
+            const alternativeSection = document.querySelector('.infrastructure-final-analysis');
+            if (alternativeSection) {
+                console.log('Found infrastructure section by class, initializing charts...');
+                initializeInfrastructureBarCharts();
+                return;
+            }
+            console.warn('No infrastructure section found, initializing charts anyway...');
+            initializeInfrastructureBarCharts();
+            return;
+        }
+        
+        console.log('Found infrastructure section:', infrastructureSection);
+        
+        // Function to check and initialize charts
+        const checkAndInitialize = () => {
+            const rect = infrastructureSection.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            const isVisible = rect.top < windowHeight * 0.8 && rect.bottom > windowHeight * 0.2;
+            
+            if (isVisible) {
+                console.log('Infrastructure section is visible, initializing charts...');
+                // Add CSS animation class to containers
+                addChartAnimationClasses();
+                initializeInfrastructureBarCharts();
+                return true;
+            }
+            return false;
+        };
+        
+        // Check if already visible
+        if (checkAndInitialize()) {
+            return;
+        }
+        
+        // Set up intersection observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const rect = entry.target.getBoundingClientRect();
+                    const intersectionRatio = entry.intersectionRatio;
+                    
+                    console.log('Infrastructure section intersection:', { 
+                        intersectionRatio, 
+                        rect: rect,
+                        windowHeight: window.innerHeight
+                    });
+                    
+                    if (intersectionRatio > 0.1) { // Lower threshold
+                        console.log('Infrastructure section became visible, initializing charts...');
+                        addChartAnimationClasses();
+                        initializeInfrastructureBarCharts();
+                        observer.unobserve(entry.target); // Only trigger once
+                    }
+                }
+            });
+        }, {
+            threshold: [0, 0.1, 0.2, 0.3], // Multiple thresholds for better detection
+            rootMargin: '50px 0px -50px 0px' // Start earlier, end later
+        });
+        
+        observer.observe(infrastructureSection);
+        console.log('Intersection observer set up for infrastructure section');
+        
+        // Fallback: Also try to initialize after a delay
+        setTimeout(() => {
+            if (!checkAndInitialize()) {
+                console.log('Fallback initialization after 3 seconds...');
+                addChartAnimationClasses();
+                initializeInfrastructureBarCharts();
+            }
+        }, 3000);
+        
+    }, 100);
+}
+
+function addChartAnimationClasses() {
+    // Add animation classes to chart containers for smooth fade-in
+    const containers = ['deathsChart', 'damageChart', 'recoveryChart'];
+    
+    // First, add pre-animate class to start hidden
+    containers.forEach(id => {
+        const container = document.getElementById(id);
+        if (container) {
+            container.classList.add('pre-animate');
+        }
+    });
+    
+    // Then trigger animations with staggered timing
+    containers.forEach((id, index) => {
+        const container = document.getElementById(id);
+        if (container) {
+            setTimeout(() => {
+                container.classList.remove('pre-animate');
+                container.classList.add('animate-in');
+                console.log(`Animating in chart: ${id}`);
+            }, (index * 200) + 300); // 300ms initial delay + 200ms stagger
+        }
+    });
 }
 
 function initializeMainInfrastructureAnalysis() {
@@ -4137,7 +4276,10 @@ function showSidebarWithStoryContent() {
 // ========== INFRASTRUCTURE BAR CHARTS ========== //
 function createDeathsBarChart() {
     const container = document.getElementById('deathsChart');
-    if (!container) return;
+    if (!container) {
+        console.warn('deathsChart container not found');
+        return;
+    }
 
     // Infrastructure level data for deaths
     const infrastructureData = [
@@ -4146,12 +4288,19 @@ function createDeathsBarChart() {
         { level: 'Low', value: 2415, color: '#e74c3c', examples: ['Haiti', 'Nepal', 'Afghanistan'] }
     ];
 
-    createInteractiveBarChart(container, infrastructureData, 'Average Deaths per Earthquake', 'deaths');
+    try {
+        createInteractiveBarChart(container, infrastructureData, 'Average Deaths per Earthquake', 'deaths');
+    } catch (error) {
+        console.error('Error creating deaths bar chart:', error);
+    }
 }
 
 function createDamageBarChart() {
     const container = document.getElementById('damageChart');
-    if (!container) return;
+    if (!container) {
+        console.warn('damageChart container not found');
+        return;
+    }
 
     // Infrastructure level data for economic damage
     const infrastructureData = [
@@ -4160,12 +4309,19 @@ function createDamageBarChart() {
         { level: 'Low', value: 8920, color: '#e74c3c', examples: ['Haiti', 'Nepal', 'Afghanistan'] }
     ];
 
-    createInteractiveBarChart(container, infrastructureData, 'Economic Damage ($ Millions)', 'millions');
+    try {
+        createInteractiveBarChart(container, infrastructureData, 'Economic Damage ($ Millions)', 'millions');
+    } catch (error) {
+        console.error('Error creating damage bar chart:', error);
+    }
 }
 
 function createRecoveryBarChart() {
     const container = document.getElementById('recoveryChart');
-    if (!container) return;
+    if (!container) {
+        console.warn('recoveryChart container not found');
+        return;
+    }
 
     // Infrastructure level data for recovery time
     const infrastructureData = [
@@ -4174,12 +4330,20 @@ function createRecoveryBarChart() {
         { level: 'Low', value: 67, color: '#e74c3c', examples: ['Haiti', 'Nepal', 'Afghanistan'] }
     ];
 
-    createInteractiveBarChart(container, infrastructureData, 'Recovery Time (Months)', 'months');
+    try {
+        createInteractiveBarChart(container, infrastructureData, 'Recovery Time (Months)', 'months');
+    } catch (error) {
+        console.error('Error creating recovery bar chart:', error);
+    }
 }
 
 function createInteractiveBarChart(container, data, title, unit) {
-    // Clear container
+    // Clear container and any existing D3 selections
     container.innerHTML = '';
+    d3.select(container).selectAll('*').remove();
+
+    // Clean up any existing tooltips for this chart
+    d3.selectAll('.bar-chart-tooltip').remove();
 
     // Set dimensions
     const margin = { top: 20, right: 30, bottom: 60, left: 80 };
@@ -4268,8 +4432,9 @@ function createInteractiveBarChart(container, data, title, unit) {
                 .style('opacity', 0);
         })
         .transition()
-        .duration(800)
-        .delay((d, i) => i * 100)
+        .duration(1000)
+        .delay((d, i) => i * 150)
+        .ease(d3.easeCubicOut)
         .attr('y', d => yScale(d.value))
         .attr('height', d => height - yScale(d.value));
 
@@ -4286,8 +4451,9 @@ function createInteractiveBarChart(container, data, title, unit) {
         .style('font-weight', 'bold')
         .text(d => d.value.toLocaleString())
         .transition()
-        .duration(800)
-        .delay((d, i) => i * 100)
+        .duration(1000)
+        .delay((d, i) => i * 150)
+        .ease(d3.easeCubicOut)
         .attr('y', d => yScale(d.value) - 5);
 
     // Add X axis

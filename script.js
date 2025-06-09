@@ -143,7 +143,19 @@ function renderIntroGlobe() {
         .attr("fill", "url(#sphereGradient)")
         .attr("stroke", getThemeAwareColor('--border-color'))
         .attr("stroke-width", 1)
-        .attr("opacity", 1);
+        .attr("opacity", 1)
+        .style("cursor", "grab")
+        .on("mouseover", function(event) {
+            showGlobeTooltip(event, "🌍 Interactive Globe - Explore earthquake patterns worldwide");
+        })
+        .on("mouseout", function() {
+            hideGlobeTooltip();
+        })
+        .on("mousemove", function(event) {
+            const tooltip = document.getElementById('globe-tooltip');
+            tooltip.style.left = (event.pageX + 15) + 'px';
+            tooltip.style.top = (event.pageY - 15) + 'px';
+        });
 
     // Graticule
     introSvg.append("path")
@@ -164,7 +176,31 @@ function renderIntroGlobe() {
         .attr("fill", getThemeAwareColor('--bg-secondary'))
         .attr("stroke", getThemeAwareColor('--border-color'))
         .attr("stroke-width", 0.5)
-        .attr("opacity", 1);
+        .attr("opacity", 1)
+        .style("cursor", "pointer")
+        .on("mouseover", function(event, d) {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("fill", "#00d4ff")
+                .attr("opacity", 0.8);
+            
+            const countryName = d.properties.NAME || d.properties.name || "Unknown Country";
+            showGlobeTooltip(event, `${countryName} - Click to explore earthquake data`);
+        })
+        .on("mouseout", function(event, d) {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("fill", getThemeAwareColor('--bg-secondary'))
+                .attr("opacity", 1);
+            hideGlobeTooltip();
+        })
+        .on("mousemove", function(event) {
+            const tooltip = document.getElementById('globe-tooltip');
+            tooltip.style.left = (event.pageX + 15) + 'px';
+            tooltip.style.top = (event.pageY - 15) + 'px';
+        });
 
     // Add major earthquakes to intro globe
     majorEarthquakes.forEach((earthquake, index) => {
@@ -325,7 +361,19 @@ function renderMainGlobe() {
         .attr("fill", "url(#sphereGradientMain)")
         .attr("stroke", getThemeAwareColor('--border-color'))
         .attr("stroke-width", 1)
-        .attr("opacity", 1);
+        .attr("opacity", 1)
+        .style("cursor", "grab")
+        .on("mouseover", function(event) {
+            showGlobeTooltip(event, "🌍 Drag to rotate - Click earthquakes for details");
+        })
+        .on("mouseout", function() {
+            hideGlobeTooltip();
+        })
+        .on("mousemove", function(event) {
+            const tooltip = document.getElementById('globe-tooltip');
+            tooltip.style.left = (event.pageX + 15) + 'px';
+            tooltip.style.top = (event.pageY - 15) + 'px';
+        });
 
     // Graticule
     mainSvg.append("path")
@@ -346,7 +394,31 @@ function renderMainGlobe() {
         .attr("fill", getThemeAwareColor('--bg-secondary'))
         .attr("stroke", getThemeAwareColor('--border-color'))
         .attr("stroke-width", 0.5)
-        .attr("opacity", 1);
+        .attr("opacity", 1)
+        .style("cursor", "pointer")
+        .on("mouseover", function(event, d) {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("fill", "#00d4ff")
+                .attr("opacity", 0.8);
+            
+            const countryName = d.properties.NAME || d.properties.name || "Unknown Country";
+            showGlobeTooltip(event, `${countryName} - Drag to rotate globe`);
+        })
+        .on("mouseout", function(event, d) {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("fill", getThemeAwareColor('--bg-secondary'))
+                .attr("opacity", 1);
+            hideGlobeTooltip();
+        })
+        .on("mousemove", function(event) {
+            const tooltip = document.getElementById('globe-tooltip');
+            tooltip.style.left = (event.pageX + 15) + 'px';
+            tooltip.style.top = (event.pageY - 15) + 'px';
+        });
 
     // Filter earthquakes to only show visible ones
     const visibleEarthquakes = sampleEarthquakes.filter(d => isPointVisible(d, mainProjection));
@@ -942,6 +1014,23 @@ function showTooltip(event, data) {
 
 function hideTooltip() {
     const tooltip = document.getElementById('earthquake-tooltip');
+    tooltip.classList.remove('visible');
+}
+
+// Globe Tooltip Functions
+function showGlobeTooltip(event, content) {
+    const tooltip = document.getElementById('globe-tooltip');
+    const tooltipContent = document.getElementById('globe-tooltip-content');
+    
+    tooltipContent.textContent = content;
+    
+    tooltip.style.left = (event.pageX + 15) + 'px';
+    tooltip.style.top = (event.pageY - 15) + 'px';
+    tooltip.classList.add('visible');
+}
+
+function hideGlobeTooltip() {
+    const tooltip = document.getElementById('globe-tooltip');
     tooltip.classList.remove('visible');
 }
 

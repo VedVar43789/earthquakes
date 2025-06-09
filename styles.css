@@ -1366,14 +1366,15 @@ body {
 
 .component-weight {
   background: var(--accent-color);
-  color: var(--bg-primary);
+  color: #ffffff;
   padding: 0.3rem 0.6rem;
   border-radius: 20px;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-right: 1rem;
   min-width: 40px;
   text-align: center;
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
 }
 
 .component-name {
@@ -2345,8 +2346,12 @@ body {
 
 .factor-weight {
   font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--accent-color);
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--accent-color);
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(78, 205, 196, 0.3);
 }
 
 .score-card {
@@ -2613,7 +2618,12 @@ footer {
 .component-weight {
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--accent-color);
+  color: #ffffff;
+  background: var(--accent-color);
+  padding: 0.3rem 0.8rem;
+  border-radius: 16px;
+  box-shadow: 0 3px 10px rgba(78, 205, 196, 0.4);
+  display: inline-block;
 }
 
 .component-description {
@@ -2719,6 +2729,20 @@ footer {
   width: 100%;
   height: 280px;
   margin: 1rem 0;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+}
+
+/* Only apply animation if we specifically want to animate in */
+.bar-chart.pre-animate {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.bar-chart.animate-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .chart-insight {
