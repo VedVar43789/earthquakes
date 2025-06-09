@@ -8,44 +8,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
     <script src="https://unpkg.com/scrollama"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Theme Toggle -->
-    <div class="theme-toggle">
-        <button class="theme-btn" id="themeSwitcher">
-            <span class="theme-icon">🌙</span>
-        </button>
-    </div>
-
     <header class="header">
-        <div style="display: flex; align-items: center;">
-            <div class="menu-icon" onclick="toggleMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
         <div class="logo">The Seismic Lottery</div>
-  </header>
-
-    <!-- Navigation Menu -->
-    <div class="nav-overlay" onclick="closeMenu()"></div>
-    <nav class="nav-menu">
-            <h3>Earthquake Education Journey</h3>
-        <ul>
-                <li><a href="#" data-section="intro" onclick="navigateToSection('intro'); closeMenu();">🌍 Global Perspective</a></li>
-                <li><a href="#" data-section="main" onclick="navigateToSection('main'); closeMenu();">📊 San Diego Focus</a></li>
-                <li><a href="#" data-section="story" onclick="navigateToSection('story'); closeMenu();">🎓 Learn the Science</a></li>
-                <li><a href="#" data-section="but" onclick="navigateToSection('but'); closeMenu();">🔬 Test Your Intuition</a></li>
-                <li><a href="#" data-section="exploration" onclick="navigateToSection('exploration'); closeMenu();">🔓 Explore the Data</a></li>
-                <li><a href="#" data-section="japan" onclick="navigateToSection('japan'); closeMenu();">🇯🇵 Japan Case Study</a></li>
-        </ul>
-    </nav>
+    </header>
 
     <!-- Earthquake Tooltip -->
     <div id="earthquake-tooltip" class="earthquake-tooltip">
@@ -279,10 +251,6 @@
             <div class="indicator-dot" onclick="goToEarthquakeSlide(4)"></div>
         </div>
     </section>
-
-
-
-
 
     <script src="https://unpkg.com/topojson@3"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>

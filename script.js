@@ -48,9 +48,6 @@ async function init() {
     initMainGlobe();
     setupScrollAnimation();
     
-    // Setup navigation menu
-    setupNavigation();
-    
     // Load earthquake data for exploration section
     await loadEarthquakeData();
     
@@ -244,7 +241,7 @@ function renderIntroGlobe() {
                             .duration(200)
                             .attr("r", size + 2)
                             .attr("stroke-width", strokeWidth + 1);
-                        showTooltip(event, earthquake);
+                        showEarthquakeTooltip(event, earthquake);
                     })
                     .on("mouseout", function(event) {
                         d3.select(this)
@@ -252,7 +249,16 @@ function renderIntroGlobe() {
                             .duration(200)
                             .attr("r", size)
                             .attr("stroke-width", strokeWidth);
-                        hideTooltip();
+                        hideEarthquakeTooltip();
+                    })
+                    .on("mousemove", function(event) {
+                        const tooltip = document.getElementById('earthquake-tooltip');
+                        tooltip.style.left = (event.pageX + 15) + 'px';
+                        tooltip.style.top = (event.pageY - 15) + 'px';
+                    })
+                    .on("click", function(event) {
+                        event.stopPropagation();
+                        showEarthquakeTooltip(event, earthquake, true);
                     });
                     
             } else if (earthquake.devastating) {
@@ -278,7 +284,7 @@ function renderIntroGlobe() {
                             .duration(200)
                             .attr("r", size + 1)
                             .attr("stroke-width", strokeWidth + 0.5);
-                        showTooltip(event, earthquake);
+                        showEarthquakeTooltip(event, earthquake);
                     })
                     .on("mouseout", function(event) {
                         d3.select(this)
@@ -286,7 +292,16 @@ function renderIntroGlobe() {
                             .duration(200)
                             .attr("r", size)
                             .attr("stroke-width", strokeWidth);
-                        hideTooltip();
+                        hideEarthquakeTooltip();
+                    })
+                    .on("mousemove", function(event) {
+                        const tooltip = document.getElementById('earthquake-tooltip');
+                        tooltip.style.left = (event.pageX + 15) + 'px';
+                        tooltip.style.top = (event.pageY - 15) + 'px';
+                    })
+                    .on("click", function(event) {
+                        event.stopPropagation();
+                        showEarthquakeTooltip(event, earthquake, true);
                     });
                     
             } else if (earthquake.major) {
@@ -312,7 +327,7 @@ function renderIntroGlobe() {
                             .duration(200)
                             .attr("r", size + 1)
                             .attr("stroke-width", strokeWidth + 0.5);
-                        showTooltip(event, earthquake);
+                        showEarthquakeTooltip(event, earthquake);
                     })
                     .on("mouseout", function(event) {
                         d3.select(this)
@@ -320,7 +335,16 @@ function renderIntroGlobe() {
                             .duration(200)
                             .attr("r", size)
                             .attr("stroke-width", strokeWidth);
-                        hideTooltip();
+                        hideEarthquakeTooltip();
+                    })
+                    .on("mousemove", function(event) {
+                        const tooltip = document.getElementById('earthquake-tooltip');
+                        tooltip.style.left = (event.pageX + 15) + 'px';
+                        tooltip.style.top = (event.pageY - 15) + 'px';
+                    })
+                    .on("click", function(event) {
+                        event.stopPropagation();
+                        showEarthquakeTooltip(event, earthquake, true);
                     });
             }
         }
@@ -467,7 +491,7 @@ function renderMainGlobe() {
                 .attr("stroke-width", 2);
             
             // Show tooltip
-            showTooltip(event, d);
+            showEarthquakeTooltip(event, d);
         })
         .on("mouseout", function(event, d) {
             // Reset the point
@@ -485,9 +509,20 @@ function renderMainGlobe() {
                 .attr("stroke-width", d => d.highlight ? 3 : 1);
             
             // Hide tooltip
-            hideTooltip();
+            hideEarthquakeTooltip();
+        })
+        .on("mousemove", function(event, d) {
+            // Update tooltip position as mouse moves
+            const tooltip = document.getElementById('earthquake-tooltip');
+            tooltip.style.left = (event.pageX + 15) + 'px';
+            tooltip.style.top = (event.pageY - 15) + 'px';
         })
         .on("click", function(event, d) {
+            event.stopPropagation(); // Prevent event bubbling
+            
+            // Show persistent tooltip
+            showEarthquakeTooltip(event, d, true);
+            
             // Center globe on clicked earthquake
             const coords = mainProjection([d.lon, d.lat]);
             if (coords) {
@@ -501,7 +536,7 @@ function renderMainGlobe() {
     if (sanDiego && isPointVisible(sanDiego, mainProjection)) {
         const coords = mainProjection([sanDiego.lon, sanDiego.lat]);
         if (coords) {
-            mainSvg.append("circle")
+            const mainRipple = mainSvg.append("circle")
                 .attr("class", "san-diego-ripple")
                 .attr("cx", coords[0])
                 .attr("cy", coords[1])
@@ -509,7 +544,26 @@ function renderMainGlobe() {
                 .attr("fill", "none")
                 .attr("stroke", "#ff5757")
                 .attr("stroke-width", 2)
-                .attr("opacity", 0.8);
+                .attr("opacity", 0.8)
+                .style("cursor", "pointer")
+                .on("mouseover", function(event) {
+                    showEarthquakeTooltip(event, sanDiego);
+                })
+                .on("mouseout", function(event) {
+                    hideEarthquakeTooltip();
+                })
+                .on("mousemove", function(event) {
+                    const tooltip = document.getElementById('earthquake-tooltip');
+                    tooltip.style.left = (event.pageX + 15) + 'px';
+                    tooltip.style.top = (event.pageY - 15) + 'px';
+                })
+                .on("click", function(event) {
+                    event.stopPropagation();
+                    showEarthquakeTooltip(event, sanDiego, true);
+                });
+                
+            // Start ripple animation for main globe
+            animateRipple(mainRipple);
         }
     }
 }
@@ -553,83 +607,239 @@ function animateIntroGlobe() {
     introSvg.selectAll(".country").attr("d", introPath);
     introSvg.selectAll(".graticule").attr("d", introPath);
     
-    // Remove existing earthquake points
-    introSvg.selectAll(".intro-earthquake").remove();
-    
-    // Re-render earthquake points based on current rotation
+    // Update earthquake positions without removing/re-adding (to preserve event handlers)
     majorEarthquakes.forEach((earthquake, index) => {
         const coords = introProjection([earthquake.lon, earthquake.lat]);
-        if (coords && isPointVisible(earthquake, introProjection)) {
+        const isVisible = coords && isPointVisible(earthquake, introProjection);
+        
+        // Get the earthquake elements for this specific earthquake
+        const earthquakeElements = introSvg.selectAll(`.intro-earthquake-${index}`);
+        
+        if (isVisible) {
+            // Update positions for existing elements
+            earthquakeElements.each(function() {
+                d3.select(this)
+                    .attr("cx", coords[0])
+                    .attr("cy", coords[1])
+                    .style("display", "block");
+            });
             
-            // Different styling based on earthquake type
-            let color, size, strokeColor, strokeWidth;
-            
-            if (earthquake.highlight) {
-                // San Diego - special highlighting
-                color = "#ff5757";
-                size = 6;
-                strokeColor = "#ff7a7a";
-                strokeWidth = 3;
-                
-                // Add ripple effect for San Diego
-                introSvg.append("circle")
-                    .attr("class", "san-diego-ripple intro-earthquake")
-                    .attr("cx", coords[0])
-                    .attr("cy", coords[1])
-                    .attr("r", 6)
-                    .attr("fill", "none")
-                    .attr("stroke", "#ff5757")
-                    .attr("stroke-width", 2)
-                    .attr("opacity", 0.8);
-                    
-                introSvg.append("circle")
-                    .attr("class", "san-diego-highlight intro-earthquake")
-                    .attr("cx", coords[0])
-                    .attr("cy", coords[1])
-                    .attr("r", size)
-                    .attr("fill", color)
-                    .attr("stroke", strokeColor)
-                    .attr("stroke-width", strokeWidth)
-                    .attr("opacity", 0.9);
-                    
-            } else if (earthquake.devastating) {
-                // High death toll - bright red
-                color = "#ff3333";
-                size = Math.max(4, earthquake.magnitude * 0.8);
-                strokeColor = "#ff6666";
-                strokeWidth = 2;
-                
-                introSvg.append("circle")
-                    .attr("class", "intro-earthquake")
-                    .attr("cx", coords[0])
-                    .attr("cy", coords[1])
-                    .attr("r", size)
-                    .attr("fill", color)
-                    .attr("stroke", strokeColor)
-                    .attr("stroke-width", strokeWidth)
-                    .attr("opacity", 0.8);
-                    
-            } else if (earthquake.major) {
-                // High magnitude - orange/yellow
-                color = "#f59e0b";
-                size = Math.max(3, earthquake.magnitude * 0.7);
-                strokeColor = "#fde047";
-                strokeWidth = 1.5;
-                
-                introSvg.append("circle")
-                    .attr("class", "intro-earthquake")
-                    .attr("cx", coords[0])
-                    .attr("cy", coords[1])
-                    .attr("r", size)
-                    .attr("fill", color)
-                    .attr("stroke", strokeColor)
-                    .attr("stroke-width", strokeWidth)
-                    .attr("opacity", 0.7);
+            // If elements don't exist, create them
+            if (earthquakeElements.empty()) {
+                createIntroEarthquakeElements(earthquake, coords, index);
             }
+        } else {
+            // Hide elements when not visible
+            earthquakeElements.style("display", "none");
         }
     });
     
     requestAnimationFrame(animateIntroGlobe);
+}
+
+function createIntroEarthquakeElements(earthquake, coords, index) {
+    let color, size, strokeColor, strokeWidth;
+    
+    if (earthquake.highlight) {
+        // San Diego - special highlighting
+        color = "#ff5757";
+        size = 6;
+        strokeColor = "#ff7a7a";
+        strokeWidth = 3;
+        
+        // Add ripple effect for San Diego
+        const rippleElement = introSvg.append("circle")
+            .attr("class", `san-diego-ripple intro-earthquake intro-earthquake-${index}`)
+            .attr("cx", coords[0])
+            .attr("cy", coords[1])
+            .attr("r", 6)
+            .attr("fill", "none")
+            .attr("stroke", "#ff5757")
+            .attr("stroke-width", 2)
+            .attr("opacity", 0.8)
+            .style("cursor", "pointer")
+            .on("mouseover", function(event) {
+                showEarthquakeTooltip(event, earthquake);
+            })
+            .on("mouseout", function(event) {
+                hideEarthquakeTooltip();
+            })
+            .on("mousemove", function(event) {
+                const tooltip = document.getElementById('earthquake-tooltip');
+                tooltip.style.left = (event.pageX + 15) + 'px';
+                tooltip.style.top = (event.pageY - 15) + 'px';
+            })
+            .on("click", function(event) {
+                event.stopPropagation();
+                showEarthquakeTooltip(event, earthquake, true);
+            });
+            
+        // Start ripple animation
+        animateRipple(rippleElement);
+            
+        const highlightElement = introSvg.append("circle")
+            .attr("class", `san-diego-highlight intro-earthquake intro-earthquake-${index}`)
+            .attr("cx", coords[0])
+            .attr("cy", coords[1])
+            .attr("r", size)
+            .attr("fill", color)
+            .attr("stroke", strokeColor)
+            .attr("stroke-width", strokeWidth)
+            .attr("opacity", 0.9)
+            .style("cursor", "pointer")
+            .on("mouseover", function(event) {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr("r", size + 2)
+                    .attr("stroke-width", strokeWidth + 1);
+                showEarthquakeTooltip(event, earthquake);
+            })
+            .on("mouseout", function(event) {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr("r", size)
+                    .attr("stroke-width", strokeWidth);
+                hideEarthquakeTooltip();
+            })
+            .on("mousemove", function(event) {
+                const tooltip = document.getElementById('earthquake-tooltip');
+                tooltip.style.left = (event.pageX + 15) + 'px';
+                tooltip.style.top = (event.pageY - 15) + 'px';
+            })
+            .on("click", function(event) {
+                event.stopPropagation();
+                showEarthquakeTooltip(event, earthquake, true);
+            });
+            
+        // Start pulse animation
+        animatePulse(highlightElement, size);
+            
+    } else if (earthquake.devastating) {
+        // High death toll - bright red
+        color = "#ff3333";
+        size = Math.max(4, earthquake.magnitude * 0.8);
+        strokeColor = "#ff6666";
+        strokeWidth = 2;
+        
+        introSvg.append("circle")
+            .attr("class", `intro-earthquake intro-earthquake-${index}`)
+            .attr("cx", coords[0])
+            .attr("cy", coords[1])
+            .attr("r", size)
+            .attr("fill", color)
+            .attr("stroke", strokeColor)
+            .attr("stroke-width", strokeWidth)
+            .attr("opacity", 0.8)
+            .style("cursor", "pointer")
+            .on("mouseover", function(event) {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr("r", size + 2)
+                    .attr("stroke-width", strokeWidth + 1);
+                showEarthquakeTooltip(event, earthquake);
+            })
+            .on("mouseout", function(event) {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr("r", size)
+                    .attr("stroke-width", strokeWidth);
+                hideEarthquakeTooltip();
+            })
+            .on("mousemove", function(event) {
+                const tooltip = document.getElementById('earthquake-tooltip');
+                tooltip.style.left = (event.pageX + 15) + 'px';
+                tooltip.style.top = (event.pageY - 15) + 'px';
+            })
+            .on("click", function(event) {
+                event.stopPropagation();
+                showEarthquakeTooltip(event, earthquake, true);
+            });
+            
+    } else if (earthquake.major) {
+        // High magnitude - orange/yellow
+        color = "#f59e0b";
+        size = Math.max(3, earthquake.magnitude * 0.7);
+        strokeColor = "#fde047";
+        strokeWidth = 1.5;
+        
+        introSvg.append("circle")
+            .attr("class", `intro-earthquake intro-earthquake-${index}`)
+            .attr("cx", coords[0])
+            .attr("cy", coords[1])
+            .attr("r", size)
+            .attr("fill", color)
+            .attr("stroke", strokeColor)
+            .attr("stroke-width", strokeWidth)
+            .attr("opacity", 0.7)
+            .style("cursor", "pointer")
+            .on("mouseover", function(event) {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr("r", size + 2)
+                    .attr("stroke-width", strokeWidth + 1);
+                showEarthquakeTooltip(event, earthquake);
+            })
+            .on("mouseout", function(event) {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr("r", size)
+                    .attr("stroke-width", strokeWidth);
+                hideEarthquakeTooltip();
+            })
+            .on("mousemove", function(event) {
+                const tooltip = document.getElementById('earthquake-tooltip');
+                tooltip.style.left = (event.pageX + 15) + 'px';
+                tooltip.style.top = (event.pageY - 15) + 'px';
+            })
+            .on("click", function(event) {
+                event.stopPropagation();
+                showEarthquakeTooltip(event, earthquake, true);
+            });
+    }
+}
+
+// Animation functions for San Diego pulse and ripple effects
+function animatePulse(element, baseSize) {
+    function pulse() {
+        element
+            .transition()
+            .duration(1000)
+            .attr("r", baseSize * 1.8)
+            .attr("opacity", 0.6)
+            .transition()
+            .duration(1000)
+            .attr("r", baseSize)
+            .attr("opacity", 0.9)
+            .on("end", pulse);
+    }
+    pulse();
+}
+
+function animateRipple(element) {
+    function ripple() {
+        element
+            .attr("r", 6)
+            .attr("opacity", 0.8)
+            .attr("stroke-width", 2)
+            .transition()
+            .duration(1500)
+            .attr("r", 25)
+            .attr("opacity", 0.3)
+            .attr("stroke-width", 1)
+            .transition()
+            .duration(1500)
+            .attr("r", 35)
+            .attr("opacity", 0)
+            .attr("stroke-width", 0.5)
+            .on("end", ripple);
+    }
+    ripple();
 }
 
 function animateMainGlobe() {
@@ -831,6 +1041,27 @@ function setupScrollAnimation() {
                 globeContainer, contentLeft, dataPoints, controls, slideIndicator
             });
         }
+
+        // --- NEW: Redirect if scrolled past prediction slide ---
+        if (scrollY > slide5Start + windowHeight * 1.2) { // 1.2x windowHeight past last slide
+            if (userPredictionPoints && userPredictionPoints.length >= 10) {
+                // Save prediction data as in submitPrediction
+                const correlation = calculatePredictionCorrelation();
+                const userTrend = calculateUserTrendDirection();
+                window.userPredictionData = {
+                    points: [...userPredictionPoints],
+                    correlation: correlation,
+                    trend: userTrend,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('userPredictionData', JSON.stringify(window.userPredictionData));
+                window.location.href = 'data.html';
+            } else {
+                alert('Please draw a more complete prediction line across the chart before proceeding.');
+                // Snap back to prediction slide
+                window.scrollTo({ top: slide5Start, behavior: 'smooth' });
+            }
+        }
     }
     
     // Helper function to show/hide sections cleanly
@@ -995,26 +1226,58 @@ function toggleAutoRotate() {
     }
 }
 
-function showTooltip(event, data) {
+// Track persistent tooltip state
+let persistentTooltip = false;
+let currentTooltipData = null;
+
+function showEarthquakeTooltip(event, data, isPersistent = false) {
     const tooltip = document.getElementById('earthquake-tooltip');
     const tooltipTitle = document.getElementById('tooltip-title');
     const tooltipMagnitude = document.getElementById('tooltip-magnitude');
     const tooltipDeaths = document.getElementById('tooltip-deaths');
     const tooltipDate = document.getElementById('tooltip-date');
     
-    tooltipTitle.textContent = data.name;
-    tooltipMagnitude.textContent = data.magnitude;
+    if (!tooltip || !tooltipTitle || !tooltipMagnitude || !tooltipDeaths || !tooltipDate) {
+        console.error('Earthquake tooltip elements not found');
+        return;
+    }
+    
+    // Handle both data formats (with or without damageMillions)
+    const location = data.name || data.location;
+    const country = data.country || '';
+    const year = data.year || data.date;
+    
+    tooltipTitle.textContent = `${location}${country ? `, ${country}` : ''}`;
+    tooltipMagnitude.textContent = data.magnitude.toFixed(1);
     tooltipDeaths.textContent = data.deaths.toLocaleString();
-    tooltipDate.textContent = data.date;
+    tooltipDate.textContent = year;
     
     tooltip.style.left = (event.pageX + 15) + 'px';
     tooltip.style.top = (event.pageY - 15) + 'px';
     tooltip.classList.add('visible');
+    
+    if (isPersistent) {
+        persistentTooltip = true;
+        currentTooltipData = data;
+        tooltip.classList.add('persistent');
+    }
 }
 
-function hideTooltip() {
+function hideEarthquakeTooltip(force = false) {
+    if (persistentTooltip && !force) {
+        return; // Don't hide if tooltip is persistent, unless forced
+    }
+    
     const tooltip = document.getElementById('earthquake-tooltip');
+    if (!tooltip) {
+        console.error('Earthquake tooltip element not found');
+        return;
+    }
+    
     tooltip.classList.remove('visible');
+    tooltip.classList.remove('persistent');
+    persistentTooltip = false;
+    currentTooltipData = null;
 }
 
 // Globe Tooltip Functions
@@ -1034,23 +1297,6 @@ function hideGlobeTooltip() {
     tooltip.classList.remove('visible');
 }
 
-// Navigation Menu Functions
-function toggleMenu() {
-    const navMenu = document.querySelector('.nav-menu');
-    const navOverlay = document.querySelector('.nav-overlay');
-    
-    navMenu.classList.toggle('open');
-    navOverlay.classList.toggle('active');
-}
-
-function closeMenu() {
-    const navMenu = document.querySelector('.nav-menu');
-    const navOverlay = document.querySelector('.nav-overlay');
-    
-    navMenu.classList.remove('open');
-    navOverlay.classList.remove('active');
-}
-
 // Handle resize
 window.addEventListener('resize', () => {
     // Globe sizes are responsive via viewBox, no need to resize
@@ -1060,10 +1306,16 @@ window.addEventListener('resize', () => {
 window.addEventListener('load', () => {
     init();
     
-    // Setup theme toggle for index.html
-    if (typeof setupThemeToggle === 'function') {
-        setupThemeToggle();
-    }
+    // Add global click handler to hide persistent tooltips
+    document.addEventListener('click', function(event) {
+        // Check if click is outside of earthquake elements
+        if (!event.target.closest('.earthquake-point') && 
+            !event.target.closest('.intro-earthquake') && 
+            !event.target.closest('.san-diego-ripple') &&
+            !event.target.closest('.earthquake-tooltip')) {
+            hideEarthquakeTooltip(true); // Force hide persistent tooltip
+        }
+    });
 });
 
 // Part 2 initialization function (called when part 2 section becomes active)
@@ -1093,10 +1345,6 @@ function initializePart2() {
         
         if (typeof setupCountrySearch === 'function') {
             setupCountrySearch();
-        }
-        
-        if (typeof setupThemeToggle === 'function') {
-            setupThemeToggle();
         }
         
         console.log('✅ Part 2 initialized successfully');
@@ -1523,13 +1771,13 @@ function setupPredictionChart() {
         .attr('width', width)
         .attr('height', height);
     
-    // Create scales
+    // Create scales to match main data chart exactly
     xScale = d3.scaleLinear()
-        .domain([5.0, 9.5])
+        .domain([0, 10]) // Full range to match the main chart display (0-10)
         .range([margin.left, width - margin.right]);
     
-    yScale = d3.scaleLinear()  // Changed from scaleLog to scaleLinear
-        .domain([0, 300000])   // Linear from 0 to 300K deaths
+    yScale = d3.scaleLog()  // Use log scale to match main chart
+        .domain([1, 5000000])   // Log scale from 1 to 5M deaths
         .range([height - margin.bottom, margin.top]);
     
     // Create chart background
@@ -1551,7 +1799,7 @@ function setupPredictionChart() {
     
     // Create X axis
     const xAxis = d3.axisBottom(xScale)
-        .ticks(9)
+        .ticks(11) // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
         .tickFormat(d => d.toString());
     
     predictionSvg.append('g')
@@ -1567,17 +1815,12 @@ function setupPredictionChart() {
     predictionSvg.selectAll('.tick line')
         .style('stroke', 'rgba(255, 138, 101, 0.6)');
     
-    // Create Y axis with linear ticks
+    // Create Y axis with log ticks to match main chart
     const yAxis = d3.axisLeft(yScale)
-        .tickValues([0, 50000, 100000, 150000, 200000, 250000, 300000])
+        .tickValues([1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000])
         .tickFormat(d => {
-            if (d === 0) return '0';
-            if (d === 50000) return '50K';
-            if (d === 100000) return '100K';
-            if (d === 150000) return '150K';
-            if (d === 200000) return '200K';
-            if (d === 250000) return '250K';
-            if (d === 300000) return '300K';
+            if (d >= 1000000) return (d/1000000) + 'M';
+            if (d >= 1000) return (d/1000) + 'K';
             return d.toString();
         });
     
@@ -1621,7 +1864,7 @@ function setupPredictionChart() {
         .style('text-anchor', 'middle')
         .style('fill', 'rgba(255, 255, 255, 0.7)')
         .style('font-size', '12px')
-        .text('Draw your prediction line from left to right');
+        .text('Draw your prediction line: how do deaths change with magnitude (0-10)?');
     
     // Set up drawing interactions
     setupDrawingInteractions(chartArea);
@@ -2695,7 +2938,7 @@ function drawD3GridLines() {
     const transformedXScale = currentTransform.rescaleX(xScale);
     
     // Vertical grid lines (magnitude)
-    const xTicks = transformedXScale.ticks(8);
+    const xTicks = transformedXScale.ticks(11);
     gridGroup.selectAll('.grid-x')
         .data(xTicks)
         .enter()
@@ -2807,7 +3050,7 @@ function drawD3Axes() {
     
     // Create axes
     const xAxis = d3.axisBottom(transformedXScale)
-        .ticks(8)
+        .ticks(11)
         .tickFormat(d => d.toFixed(1));
     
     const yAxis = d3.axisLeft(yScale)
@@ -3221,8 +3464,8 @@ function drawD3PredictionOverlay() {
             const magnitude = xScale.invert(point.x);
             const deaths = yScale.invert(point.y);
             
-            // Check if point is valid
-            if (magnitude >= 5.0 && magnitude <= 9.5 && deaths >= 0) {
+            // Check if point is valid (updated to match new prediction range with log scale)
+            if (magnitude >= 0 && magnitude <= 10 && deaths >= 1 && deaths <= 5000000) {
                 return {
                     x: transformedXScale(magnitude),
                     y: scatterYScale(deaths)
@@ -4018,7 +4261,7 @@ function drawExploreGridLines() {
     
     // X-axis grid lines
     chartGroup.selectAll('.grid-line-x')
-        .data(xScale.ticks(8))
+        .data(xScale.ticks(11))
         .enter().append('line')
         .attr('class', 'grid-line-x')
         .attr('x1', d => xScale(d))
@@ -4049,7 +4292,7 @@ function drawExploreAxes() {
     // X-axis
     chartGroup.append('g')
         .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(xScale).ticks(8))
+        .call(d3.axisBottom(xScale).ticks(11))
         .selectAll('text')
         .style('fill', '#ffffff')
         .style('font-size', '12px');
@@ -5301,7 +5544,7 @@ function createAxes() {
     // Y axis with custom tick values and formatting
     const customTickValues = [
         1, 2, 5, 10, 20, 50, 100, 200, 500, 
-        1000, 2000, 5000, 10000, 20000, 50000, 
+        1000, 2000, 5000, 10000, 20000, 50000,
         100000, 200000, 500000, 1000000, 2000000, 5000000
     ];
     
@@ -6285,7 +6528,7 @@ function handleMouseMove(event) {
         
         if (hoveredDot) {
             console.log('Found dot:', hoveredDot.data.location, 'at', hoveredDot.currentX, hoveredDot.currentY);
-            showTooltip(event, hoveredDot);
+            showInfraTooltip(event, hoveredDot);
         } else {
             hideTooltip();
         }
@@ -6487,32 +6730,37 @@ function createFilteredImpactChart(filteredData) {
     `;
 }
 
-function showTooltip(event, dot) {
-    const data = dot.data;
+function showEarthquakeTooltip(event, data, isPersistent = false) {
+    const tooltip = document.getElementById('earthquake-tooltip');
+    const tooltipTitle = document.getElementById('tooltip-title');
+    const tooltipMagnitude = document.getElementById('tooltip-magnitude');
+    const tooltipDeaths = document.getElementById('tooltip-deaths');
+    const tooltipDate = document.getElementById('tooltip-date');
     
-    // Format the tooltip content
-    const damageText = data.damageMillions > 0 ? `$${data.damageMillions.toFixed(1)}M` : 'Not reported';
-    const infrastructureText = data.infrastructure.charAt(0).toUpperCase() + data.infrastructure.slice(1);
+    if (!tooltip || !tooltipTitle || !tooltipMagnitude || !tooltipDeaths || !tooltipDate) {
+        console.error('Earthquake tooltip elements not found');
+        return;
+    }
     
-    tooltip.innerHTML = `
-        <div class="tooltip-title">${data.location}, ${data.country}</div>
-        <div class="tooltip-info">
-            <span class="tooltip-label">Year:</span>
-            <span class="tooltip-value">${data.year}</span>
-            <span class="tooltip-label">Magnitude:</span>
-            <span class="tooltip-value">${data.magnitude.toFixed(1)}</span>
-            <span class="tooltip-label">Deaths:</span>
-            <span class="tooltip-value">${data.deaths.toLocaleString()}</span>
-            <span class="tooltip-label">Damage:</span>
-            <span class="tooltip-value">${damageText}</span>
-            <span class="tooltip-label">Infrastructure:</span>
-            <span class="tooltip-value">${infrastructureText}</span>
-        </div>
-    `;
+    // Handle both data formats (with or without damageMillions)
+    const location = data.name || data.location;
+    const country = data.country || '';
+    const year = data.year || data.date;
     
-    updateTooltipPosition(event);
+    tooltipTitle.textContent = `${location}${country ? `, ${country}` : ''}`;
+    tooltipMagnitude.textContent = data.magnitude.toFixed(1);
+    tooltipDeaths.textContent = data.deaths.toLocaleString();
+    tooltipDate.textContent = year;
+    
+    tooltip.style.left = (event.pageX + 15) + 'px';
+    tooltip.style.top = (event.pageY - 15) + 'px';
     tooltip.classList.add('visible');
-    console.log('Tooltip shown at:', tooltip.style.left, tooltip.style.top);
+    
+    if (isPersistent) {
+        persistentTooltip = true;
+        currentTooltipData = data;
+        tooltip.classList.add('persistent');
+    }
 }
 
 function updateTooltipPosition(event) {
@@ -6544,8 +6792,14 @@ function updateTooltipPosition(event) {
     tooltip.style.position = 'fixed'; // Use fixed positioning relative to viewport
 }
 
-function hideTooltip() {
-    tooltip.classList.remove('visible');
+function hideEarthquakeTooltip(force) {
+    const tooltip = document.getElementById('earthquake-tooltip');
+    if (tooltip) {
+        if (force || !tooltip.classList.contains('persistent')) {
+            tooltip.classList.remove('visible');
+            tooltip.classList.remove('persistent');
+        }
+    }
 }
 
 function showInfrastructureAnalysis() {

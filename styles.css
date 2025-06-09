@@ -58,7 +58,7 @@ body {
   width: 100vw;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   z-index: 1;
   transition: margin-left 0.8s ease;
 }

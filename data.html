@@ -393,6 +393,8 @@
               These interactive visualizations demonstrate how infrastructure quality dramatically affects earthquake outcomes across three critical metrics. Hover over each bar to explore the data:
             </p>
             
+
+            
             <div class="bar-charts-container">
               <div class="chart-wrapper">
                 <h4>Average Deaths per Earthquake</h4>
@@ -589,6 +591,14 @@
             <button id="searchButton" onclick="searchCountry()">Search</button>
           </div>
           <p id="searchError" class="error-message"></p>
+          
+          <!-- Prediction Toggle -->
+          <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #00ff88; cursor: pointer;">
+              <input type="checkbox" id="show-prediction-toggle" style="accent-color: #00ff88; width: 1.1em; height: 1.1em;" />
+              Show Your Prediction
+            </label>
+          </div>
       </div>
 
         <!-- Statistics Panel -->

@@ -4744,3 +4744,14 @@ footer {
         text-align: center;
     }
 }
+
+.control-group input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px;
+    background: #00d4ff;
+    border-radius: 3px;
+}
+.control-group input[type="range"]::-moz-range-track {
+    height: 6px;
+    background: #00d4ff;
+    border-radius: 3px;
+}

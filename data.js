@@ -252,6 +252,17 @@ document.addEventListener('DOMContentLoaded', function() {
     setupCountrySearch();
     setupThemeToggle();
     setupScrollUpTrigger(); // Add scroll-up trigger
+    // Setup prediction toggle listener
+    const showPrediction = document.getElementById('show-prediction-toggle');
+    if (showPrediction) {
+        showPrediction.checked = false;
+        showPrediction.addEventListener('change', function() {
+            if (typeof drawVisualization === 'function') drawVisualization();
+        });
+    }
+    
+    // Initialize prediction toggle visibility based on initial view
+    updatePredictionToggleVisibility();
 });
 
 function initializeCanvas() {
@@ -801,28 +812,22 @@ function drawVisualization() {
     
     // Update colors based on view
     visibleDots.forEach(dot => {
-        if (currentView === 'infrastructure') {
-            dot.color = getInfrastructureColor(dot.data.infrastructure);
-        } else {
-            // Default coloring for bubble and uniform views
-            dot.color = getInfrastructureColor(dot.data.infrastructure);
-        }
+        dot.color = getInfrastructureColor(dot.data.infrastructure);
     });
     
     // Set target opacities based on search
     if (searchedCountry) {
         visibleDots.forEach(dot => {
             if (dot.data.country.toLowerCase().includes(searchedCountry.toLowerCase())) {
-                dot.targetOpacity = 0.95; // Highlighted
+                dot.targetOpacity = 0.95;
             } else {
-                dot.targetOpacity = 0.1; // Dimmed
+                dot.targetOpacity = 0.1;
             }
         });
     }
     
     // Draw all dots first (only if they're within reasonable bounds)
     visibleDots.forEach(dot => {
-        // Only draw dots that are within or near the visible area
         const currentCanvasWidth = canvas.offsetWidth || canvasWidth;
         const maxRadius = dot.currentSize || dot.size;
         
@@ -830,18 +835,10 @@ function drawVisualization() {
             dot.currentX <= currentCanvasWidth - chartMargin.right + maxRadius &&
             dot.currentY >= chartMargin.top - maxRadius && 
             dot.currentY <= canvasHeight - chartMargin.bottom + maxRadius) {
-            
             let opacity = dot.opacity;
             
-            // Handle hover highlighting
             if (hoveredDot) {
-                if (dot === hoveredDot) {
-                    // Keep hovered dot as normal
-                    opacity = dot.opacity;
-                } else {
-                    // Grey out other dots
-                    opacity = Math.max(0.1, dot.opacity * 0.3);
-                }
+                opacity = (dot === hoveredDot) ? dot.opacity : Math.max(0.1, dot.opacity * 0.3);
             }
             
             ctx.fillStyle = dot.color;
@@ -856,27 +853,85 @@ function drawVisualization() {
     if (searchedCountry) {
         ctx.globalAlpha = 1;
         visibleDots.forEach(dot => {
-            if (dot.data.country.toLowerCase().includes(searchedCountry.toLowerCase())) {
-                // Only draw outlines for dots within visible bounds
-                const currentCanvasWidth = canvas.offsetWidth || canvasWidth;
-                const maxRadius = (dot.currentSize || dot.size) + 2;
-                
-                if (dot.currentX >= chartMargin.left - maxRadius && 
-                    dot.currentX <= currentCanvasWidth - chartMargin.right + maxRadius &&
-                    dot.currentY >= chartMargin.top - maxRadius && 
-                    dot.currentY <= canvasHeight - chartMargin.bottom + maxRadius) {
-                    
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(dot.currentX, dot.currentY, (dot.currentSize || dot.size) + 2, 0, 2 * Math.PI);
-                    ctx.stroke();
-                }
+            const currentCanvasWidth = canvas.offsetWidth || canvasWidth;
+            const radius = (dot.currentSize || dot.size) + 2;
+            if (dot.currentX >= chartMargin.left - radius &&
+                dot.currentX <= currentCanvasWidth - chartMargin.right + radius &&
+                dot.currentY >= chartMargin.top - radius &&
+                dot.currentY <= canvasHeight - chartMargin.bottom + radius) {
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(dot.currentX, dot.currentY, radius, 0, 2 * Math.PI);
+                ctx.stroke();
             }
         });
     }
-    
     ctx.globalAlpha = 1;
+
+    // === Overlay user prediction line ===
+    try {
+        const showPrediction = document.getElementById('show-prediction-toggle');
+        // Only show prediction in normal dots view (not bubble view)
+        if (showPrediction && showPrediction.checked && currentView === 'dots') {
+            const predictionRaw = localStorage.getItem('userPredictionData');
+            if (predictionRaw) {
+                const prediction = JSON.parse(predictionRaw);
+                if (prediction && prediction.points && prediction.points.length > 1) {
+                    // Updated coordinate transformation to match new prediction chart scales
+                    const predX0 = 50, predX1 = 570; // Adjusted to match new prediction chart width
+                    const predY0 = 225, predY1 = 10; // Adjusted to match new prediction chart height
+                    const magMin = 0, magMax = 10;
+                    
+                    // Use current chart domains for accurate mapping
+                    const currentDeathsDomain = currentAxisDomains ? currentAxisDomains.deaths : [0.5, d3.max(data, d => d.deaths)];
+                    
+                    // Transform points and filter to only those within chart boundaries
+                    const chartLeft = chartMargin.left;
+                    const chartRight = chartMargin.left + chartWidth;
+                    const chartTop = chartMargin.top;
+                    const chartBottom = chartMargin.top + chartHeight;
+                    
+                    const validPoints = prediction.points
+                        .map(pt => {
+                            const mag = magMin + (pt.x - predX0) / (predX1 - predX0) * (magMax - magMin);
+                            
+                            // Simple linear interpolation from prediction y-coordinate to deaths
+                            const deathsNormalized = (predY0 - pt.y) / (predY0 - predY1); // 0 to 1
+                            const deaths = deathsNormalized * 330000; // Map to 0-330K deaths linearly
+                            
+                            // Map to canvas coordinates
+                            const x = chartMargin.left + (mag - magMin) / (magMax - magMin) * chartWidth;
+                            const y = chartMargin.top + chartHeight - (deaths - currentDeathsDomain[0]) / (currentDeathsDomain[1] - currentDeathsDomain[0]) * chartHeight;
+                            
+                            return { x, y, mag, deaths };
+                        })
+                        .filter(pt => {
+                            // Clip much more from the start - start line well into the chart
+                            const startMargin = chartWidth * 0.15; // Start 15% into the chart
+                            return pt.x >= (chartLeft + startMargin) && pt.x <= chartRight && 
+                                   pt.y >= chartTop && pt.y <= chartBottom &&
+                                   pt.mag >= 2.0 && pt.mag <= 10; // Start at magnitude 2.0
+                        });
+                    
+                    if (validPoints.length > 1) {
+                        ctx.save();
+                        ctx.strokeStyle = '#00ff88';
+                        ctx.lineWidth = 4;
+                        ctx.globalAlpha = 0.85;
+                        ctx.setLineDash([8, 4]); // Dashed line to distinguish from data
+                        ctx.beginPath();
+                        ctx.moveTo(validPoints[0].x, validPoints[0].y);
+                        validPoints.slice(1).forEach(pt => ctx.lineTo(pt.x, pt.y));
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        // Fail silently
+    }
 }
 
 function drawInfrastructureChart() {
@@ -1269,10 +1324,31 @@ function setupViewToggle() {
             // Update visualization view
             currentView = this.dataset.view;
             
+            // Show/hide prediction toggle based on view
+            updatePredictionToggleVisibility();
+            
             // Update dot sizes based on view with smooth transitions
             updateDotSizes();
         });
     });
+}
+
+function updatePredictionToggleVisibility() {
+    const predictionLabel = document.querySelector('label[for="show-prediction-toggle"]');
+    const predictionCheckbox = document.getElementById('show-prediction-toggle');
+    
+    if (predictionLabel && predictionCheckbox) {
+        if (currentView === 'dots') {
+            // Show prediction toggle for normal dots view
+            predictionLabel.style.display = 'flex';
+            predictionCheckbox.style.display = 'block';
+        } else {
+            // Hide prediction toggle for bubble view and uncheck it
+            predictionLabel.style.display = 'none';
+            predictionCheckbox.style.display = 'none';
+            predictionCheckbox.checked = false;
+        }
+    }
 }
 
 function updateDotSizes() {
@@ -1497,6 +1573,13 @@ function restoreOriginalSidebar() {
             <button id="searchButton" onclick="searchCountry()">Search</button>
           </div>
           <p id="searchError" class="error-message"></p>
+          <!-- Prediction Toggle -->
+          <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #00ff88; cursor: pointer;">
+              <input type="checkbox" id="show-prediction-toggle" style="accent-color: #00ff88; width: 1.1em; height: 1.1em;" />
+              Show Your Prediction
+            </label>
+          </div>
         </div>
 
         <!-- Statistics Panel -->
@@ -4499,6 +4582,13 @@ function restoreNormalSidebarContent() {
                     <button id="searchButton" onclick="searchCountry()">Search</button>
                 </div>
                 <p id="searchError" class="error-message"></p>
+                <!-- Prediction Toggle -->
+                <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #00ff88; cursor: pointer;">
+                    <input type="checkbox" id="show-prediction-toggle" style="accent-color: #00ff88; width: 1.1em; height: 1.1em;" />
+                    Show Your Prediction
+                  </label>
+                </div>
             </div>
 
             <div class="stats-panel" id="statsPanel">
