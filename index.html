@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>When the Ground Shakes: Infrastructure Matters More Than Magnitude</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
+    <script src="https://unpkg.com/scrollama"></script>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header class="header">
@@ -18,21 +24,21 @@
             </div>
         </div>
         <div class="logo">The Seismic Lottery</div>
-    </header>
+  </header>
 
     <!-- Navigation Menu -->
     <div class="nav-overlay" onclick="closeMenu()"></div>
-            <nav class="nav-menu">
+    <nav class="nav-menu">
             <h3>Earthquake Education Journey</h3>
-            <ul>
+        <ul>
                 <li><a href="#" data-section="intro" onclick="navigateToSection('intro'); closeMenu();">🌍 Global Perspective</a></li>
                 <li><a href="#" data-section="main" onclick="navigateToSection('main'); closeMenu();">📊 San Diego Focus</a></li>
                 <li><a href="#" data-section="story" onclick="navigateToSection('story'); closeMenu();">🎓 Learn the Science</a></li>
                 <li><a href="#" data-section="but" onclick="navigateToSection('but'); closeMenu();">🔬 Test Your Intuition</a></li>
                 <li><a href="#" data-section="exploration" onclick="navigateToSection('exploration'); closeMenu();">🔓 Explore the Data</a></li>
                 <li><a href="#" data-section="japan" onclick="navigateToSection('japan'); closeMenu();">🇯🇵 Japan Case Study</a></li>
-            </ul>
-        </nav>
+        </ul>
+    </nav>
 
     <!-- Earthquake Tooltip -->
     <div id="earthquake-tooltip" class="earthquake-tooltip">
@@ -171,41 +177,41 @@
                     <div class="energy-calculator">
                         <!-- Left Side: Controls -->
                         <div class="calculator-left">
-                            <div class="calculator-controls">
-                                <div class="control-group">
-                                    <label for="magnitude-slider">Magnitude:</label>
-                                    <input type="range" id="magnitude-slider" min="5.0" max="9.5" step="0.1" value="7.0">
-                                    <span id="magnitude-display">7.0</span>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="depth-slider">Depth (km):</label>
-                                    <input type="range" id="depth-slider" min="1" max="700" value="50">
-                                    <span id="depth-display">50</span>
-                                </div>
-                                
-                                <div class="historical-selector">
-                                    <label for="historical-earthquake">Or choose a historical earthquake:</label>
-                                    <select id="historical-earthquake">
-                                        <option value="custom">Custom Values</option>
-                                        <option value="san-diego" data-mag="5.2" data-depth="15">San Diego 2025 (5.2, 15km)</option>
-                                        <option value="northridge" data-mag="6.7" data-depth="19">Northridge 1994 (6.7, 19km)</option>
-                                        <option value="loma-prieta" data-mag="6.9" data-depth="18">Loma Prieta 1989 (6.9, 18km)</option>
-                                        <option value="kobe" data-mag="6.9" data-depth="16">Kobe Japan 1995 (6.9, 16km)</option>
-                                        <option value="haiti" data-mag="7.0" data-depth="13">Haiti 2010 (7.0, 13km)</option>
-                                        <option value="kashmir" data-mag="7.6" data-depth="26">Kashmir 2005 (7.6, 26km)</option>
-                                        <option value="turkey" data-mag="7.8" data-depth="18">Turkey-Syria 2023 (7.8, 18km)</option>
-                                        <option value="san-francisco" data-mag="7.9" data-depth="25">San Francisco 1906 (7.9, 25km)</option>
-                                        <option value="sichuan" data-mag="8.0" data-depth="19">Sichuan China 2008 (8.0, 19km)</option>
-                                        <option value="mexico-city" data-mag="8.0" data-depth="333">Mexico City 1985 (8.0, 333km)</option>
-                                        <option value="sumatra" data-mag="9.1" data-depth="30">Sumatra 2004 (9.1, 30km)</option>
-                                        <option value="japan" data-mag="9.1" data-depth="32">Japan Tohoku 2011 (9.1, 32km)</option>
-                                        <option value="alaska" data-mag="9.2" data-depth="25">Alaska 1964 (9.2, 25km)</option>
-                                        <option value="chile" data-mag="9.5" data-depth="33">Chile 1960 (9.5, 33km)</option>
-                                    </select>
-                                </div>
+                        <div class="calculator-controls">
+                            <div class="control-group">
+                                <label for="magnitude-slider">Magnitude:</label>
+                                <input type="range" id="magnitude-slider" min="5.0" max="9.5" step="0.1" value="7.0">
+                                <span id="magnitude-display">7.0</span>
                             </div>
                             
+                            <div class="control-group">
+                                <label for="depth-slider">Depth (km):</label>
+                                <input type="range" id="depth-slider" min="1" max="700" value="50">
+                                <span id="depth-display">50</span>
+                            </div>
+                            
+                            <div class="historical-selector">
+                                <label for="historical-earthquake">Or choose a historical earthquake:</label>
+                                <select id="historical-earthquake">
+                                    <option value="custom">Custom Values</option>
+                                    <option value="san-diego" data-mag="5.2" data-depth="15">San Diego 2025 (5.2, 15km)</option>
+                                    <option value="northridge" data-mag="6.7" data-depth="19">Northridge 1994 (6.7, 19km)</option>
+                                    <option value="loma-prieta" data-mag="6.9" data-depth="18">Loma Prieta 1989 (6.9, 18km)</option>
+                                    <option value="kobe" data-mag="6.9" data-depth="16">Kobe Japan 1995 (6.9, 16km)</option>
+                                    <option value="haiti" data-mag="7.0" data-depth="13">Haiti 2010 (7.0, 13km)</option>
+                                    <option value="kashmir" data-mag="7.6" data-depth="26">Kashmir 2005 (7.6, 26km)</option>
+                                    <option value="turkey" data-mag="7.8" data-depth="18">Turkey-Syria 2023 (7.8, 18km)</option>
+                                    <option value="san-francisco" data-mag="7.9" data-depth="25">San Francisco 1906 (7.9, 25km)</option>
+                                    <option value="sichuan" data-mag="8.0" data-depth="19">Sichuan China 2008 (8.0, 19km)</option>
+                                    <option value="mexico-city" data-mag="8.0" data-depth="333">Mexico City 1985 (8.0, 333km)</option>
+                                    <option value="sumatra" data-mag="9.1" data-depth="30">Sumatra 2004 (9.1, 30km)</option>
+                                    <option value="japan" data-mag="9.1" data-depth="32">Japan Tohoku 2011 (9.1, 32km)</option>
+                                    <option value="alaska" data-mag="9.2" data-depth="25">Alaska 1964 (9.2, 25km)</option>
+                                    <option value="chile" data-mag="9.5" data-depth="33">Chile 1960 (9.5, 33km)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
                             <div class="energy-summary">
                                 <div class="energy-item">
                                     <span class="energy-label">Total Energy Released</span>
@@ -215,9 +221,9 @@
                                     <span class="energy-label">Surface Impact Level</span>
                                     <span class="energy-value" id="energy-comparison">Strong (5.2)</span>
                                 </div>
+                                </div>
                             </div>
-                        </div>
-                        
+                            
                         <!-- Right Side: Bomb Visualization -->
                         <div class="calculator-right">
                             <div class="bomb-visualization">
@@ -273,208 +279,9 @@
         </div>
     </section>
 
-    <!-- But Section - Interactive Data Exploration -->
-    <section class="but-section">
-        <div class="but-content">
-            <p class="but-subtitle">Let's see the real relationship between earthquake magnitude and devastation</p>
-            
-            <div class="data-exploration">
-                <div class="control-panel">
-                    <div class="control-row">
-                        <div class="control-group">
-                            <label for="magnitude-range">Magnitude Range</label>
-                            <div class="dual-slider" id="magnitude-slider">
-                                <input type="range" id="magnitude-min" min="0" max="10" value="0" step="0.1">
-                                <input type="range" id="magnitude-max" min="0" max="10" value="10" step="0.1">
-                                <div class="slider-track"></div>
-                            </div>
-                            <div class="range-display">
-                                <span id="magnitude-range-display">0.0 - 10.0</span>
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label for="deaths-range">Deaths Range</label>
-                            <div class="dual-slider" id="deaths-slider">
-                                <input type="range" id="deaths-min" min="0" max="1000000" value="0" step="1000">
-                                <input type="range" id="deaths-max" min="0" max="1000000" value="330000" step="1000">
-                                <div class="slider-track"></div>
-                            </div>
-                            <div class="range-display">
-                                <span id="deaths-range-display">0 - 330,000</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-row">
-                        <div class="control-group">
-                            <label for="country-filter">Country Filter</label>
-                            <select id="country-filter">
-                                <option value="">All Countries</option>
-                            </select>
-                        </div>
-                        
-                        <div class="control-group toggle-group">
-                            <label>
-                                <input type="checkbox" id="show-prediction">
-                                <span class="toggle-switch"></span>
-                                Show Your Prediction
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                
 
-                
-                <div class="chart-container">
-                    <div id="earthquake-scatter-chart"></div>
-                    <div class="chart-info">
-                        <div class="info-item">
-                            <span class="info-label">Showing:</span>
-                            <span id="data-count">0 earthquakes</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-note">Scroll to zoom • Press Shift key and drag to select</span>
-                        </div>
-                        
-                        <!-- Selection Statistics - appears when selection is made -->
-                        <div class="selection-stats" id="selection-stats" style="display: none;">
-                            <div class="selection-header">
-                                <h4>📊 Selection Analysis</h4>
-                                <button id="clear-selection" class="clear-selection-btn">×</button>
-                            </div>
-                            <div class="selection-grid">
-                                <div class="selection-item">
-                                    <span class="selection-label">Selected</span>
-                                    <span class="selection-value" id="selected-count">0</span>
-                                </div>
-                                <div class="selection-item">
-                                    <span class="selection-label">Magnitude Range</span>
-                                    <span class="selection-value" id="selected-mag-range">0.0 - 0.0</span>
-                                </div>
-                                <div class="selection-item">
-                                    <span class="selection-label">Total Deaths</span>
-                                    <span class="selection-value" id="selected-total-deaths">0</span>
-                                </div>
-                                <div class="selection-item">
-                                    <span class="selection-label">Avg Deaths</span>
-                                    <span class="selection-value" id="selected-avg-deaths">0</span>
-                                </div>
-                                <div class="selection-item">
-                                    <span class="selection-label">Deadliest</span>
-                                    <span class="selection-value" id="selected-deadliest">None</span>
-                                </div>
-                                <div class="selection-item">
-                                    <span class="selection-label">Countries</span>
-                                    <span class="selection-value" id="selected-countries">0</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
 
-        </div>
-    </section>
 
-    
-
-           <!-- Data Exploration Deep Dive Section -->
-       <section class="exploration-section">
-           <div class="exploration-content">
-               <div class="exploration-text-compact">
-                   <p><strong>Wow!</strong> It seems there is <strong>no real pattern</strong> to be found between magnitude and death. In fact, on the surface these seems pretty <strong>random</strong>! Don't believe us? Feel free to <strong>splice the data however you want</strong>.</p>
-               </div>
-               
-               <!-- Exact Copy of Data Exploration (Unlocked) -->
-               <div class="data-exploration">
-                   <!-- Control Panel -->
-                   <div class="control-panel">
-                       <div class="control-row">
-                           <div class="control-group">
-                               <label for="magnitude-filter">Magnitude Range</label>
-                               <div class="dual-slider">
-                                   <input type="range" id="magnitude-min-explore" min="0" max="10" value="0" step="0.1">
-                                   <input type="range" id="magnitude-max-explore" min="0" max="10" value="10" step="0.1">
-                               </div>
-                               <div class="range-display" id="magnitude-range-display-explore">0 - 10</div>
-                           </div>
-                           
-                           <div class="control-group">
-                               <label for="deaths-filter">Deaths Range</label>
-                               <div class="dual-slider">
-                                   <input type="range" id="deaths-min-explore" min="0" max="1000000" value="0" step="1000">
-                                   <input type="range" id="deaths-max-explore" min="0" max="1000000" value="1000000" step="1000">
-                               </div>
-                               <div class="range-display" id="deaths-range-display-explore">0 - 1,000,000</div>
-                           </div>
-                       </div>
-                       
-                       <div class="control-row">
-                           <div class="control-group">
-                               <label for="country-filter-explore">Filter by Country</label>
-                               <select id="country-filter-explore">
-                                   <option value="">All Countries</option>
-                               </select>
-                           </div>
-                           
-                           <div class="control-group toggle-group">
-                               <label for="show-prediction-explore">
-                                   <input type="checkbox" id="show-prediction-explore">
-                                   <span class="toggle-switch"></span>
-                                   Show Your Prediction
-                               </label>
-                           </div>
-                       </div>
-                   </div>
-                   
-                   <!-- Chart Container -->
-                   <div class="chart-container">
-                       <div id="earthquake-scatter-chart-explore"></div>
-                       <div class="chart-info">
-                           <div class="info-item">
-                               <span class="info-label">Data Points:</span>
-                               <span id="data-count-explore">0</span>
-                           </div>
-                           <div class="info-item">
-                               <span class="info-label">Hold Shift + Drag:</span>
-                               <span>Select earthquakes</span>
-                           </div>
-                           <div class="info-note">
-                               All controls unlocked - explore freely!
-                           </div>
-                       </div>
-                       
-                       <!-- Selection Statistics -->
-                       <div id="selection-stats-explore" class="selection-stats" style="display: none;">
-                           <div class="selection-header">
-                               <h4>Selected Earthquakes</h4>
-                               <button id="clear-selection-explore" class="clear-selection-btn">×</button>
-                           </div>
-                           <div class="selection-grid">
-                               <div class="selection-item">
-                                   <span class="selection-label">Count</span>
-                                   <span class="selection-value" id="selection-count-explore">0</span>
-                               </div>
-                               <div class="selection-item">
-                                   <span class="selection-label">Avg Magnitude</span>
-                                   <span class="selection-value" id="selection-avg-mag-explore">0</span>
-                               </div>
-                               <div class="selection-item">
-                                   <span class="selection-label">Avg Deaths</span>
-                                   <span class="selection-value" id="selection-avg-deaths-explore">0</span>
-                               </div>
-                           </div>
-                       </div>
-                   </div>
-               </div>
-               
-               <div class="exploration-conclusion-compact">
-                   <p>But are these death tolls really <strong>random</strong>? To explore this first let's go to <strong style="color: #ff6b47;">Japan</strong>!</p>
-               </div>
-           </div>
-       </section>
 
     <script src="https://unpkg.com/topojson@3"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>

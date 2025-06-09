@@ -1,0 +1,482 @@
+[
+  {
+    "left": {
+      "country": "CHINA",
+      "location": "CHINA:  YUNNAN PROVINCE",
+      "year": 1906,
+      "magnitude": 5.3,
+      "deaths": 1
+    },
+    "right": {
+      "country": "CHINA",
+      "location": "CHINA:  QINGHAI PROVINCE",
+      "year": 1834,
+      "magnitude": 5.5,
+      "deaths": 88
+    }
+  },
+  {
+    "left": {
+      "country": "INDONESIA",
+      "location": "INDONESIA: NEW GUINEA: MANOKWARI, ORANSBARI, RANSIKI",
+      "year": 2002,
+      "magnitude": 7.6,
+      "deaths": 8
+    },
+    "right": {
+      "country": "ARGENTINA",
+      "location": "ARGENTINA:  SAN JUAN PROVINCE:  MENDOZA",
+      "year": 1977,
+      "magnitude": 7.4,
+      "deaths": 70
+    }
+  },
+  {
+    "left": {
+      "country": "VENEZUELA",
+      "location": "VENEZUELA: EL TOCUYO",
+      "year": 1950,
+      "magnitude": 6.4,
+      "deaths": 100
+    },
+    "right": {
+      "country": "RUSSIA",
+      "location": "RUSSIA:  DAGESTAN",
+      "year": 1970,
+      "magnitude": 6.7,
+      "deaths": 31
+    }
+  },
+  {
+    "left": {
+      "country": "BELGIUM",
+      "location": "BELGIUM",
+      "year": 1983,
+      "magnitude": 5.0,
+      "deaths": 2
+    },
+    "right": {
+      "country": "INDONESIA",
+      "location": "INDONESIA: NEW GUINEA: IRIAN JAYA: JAYAPURA",
+      "year": 2023,
+      "magnitude": 5.1,
+      "deaths": 4
+    }
+  },
+  {
+    "left": {
+      "country": "SOLOMON ISLANDS",
+      "location": "SOLOMON ISLANDS:  SAN CRISTOBAL, GUADALCANAL",
+      "year": 1988,
+      "magnitude": 7.6,
+      "deaths": 1
+    },
+    "right": {
+      "country": "TURKMENISTAN",
+      "location": "TURKMENISTAN",
+      "year": 1946,
+      "magnitude": 7.5,
+      "deaths": 400
+    }
+  },
+  {
+    "left": {
+      "country": "CHILE",
+      "location": "CHILE:  SOUTH CENTRAL",
+      "year": 2019,
+      "magnitude": 6.1,
+      "deaths": 1
+    },
+    "right": {
+      "country": "PAKISTAN-NW AFGHANISTAN",
+      "location": "PAKISTAN-NW AFGHANISTAN:  HINDU KUSH: CHITRAL-LANDI",
+      "year": 1984,
+      "magnitude": 6.1,
+      "deaths": 4
+    }
+  },
+  {
+    "left": {
+      "country": "TAIWAN",
+      "location": "TAIWAN:  TAI-CHUNG COUNTY",
+      "year": 2000,
+      "magnitude": 5.4,
+      "deaths": 3
+    },
+    "right": {
+      "country": "EL SALVADOR",
+      "location": "EL SALVADOR:  CONCHAGUA",
+      "year": 2001,
+      "magnitude": 5.7,
+      "deaths": 1
+    }
+  },
+  {
+    "left": {
+      "country": "SOLOMON ISLANDS",
+      "location": "SOLOMON ISLANDS",
+      "year": 2007,
+      "magnitude": 8.1,
+      "deaths": 52
+    },
+    "right": {
+      "country": "HAITI",
+      "location": "HAITI:  CAP-HAITIEN",
+      "year": 1842,
+      "magnitude": 8.1,
+      "deaths": 5300
+    }
+  },
+  {
+    "left": {
+      "country": "TAIWAN",
+      "location": "TAIWAN:  HUALIEN",
+      "year": 1986,
+      "magnitude": 6.4,
+      "deaths": 1
+    },
+    "right": {
+      "country": "MEXICO",
+      "location": "MEXICO:  MARIA MADRE ISLAND",
+      "year": 1948,
+      "magnitude": 6.6,
+      "deaths": 4
+    }
+  },
+  {
+    "left": {
+      "country": "TAJIKISTAN",
+      "location": "TAJIKISTAN:  USOY, BARCHIDIV, POSOR, NISUR",
+      "year": 1911,
+      "magnitude": 7.2,
+      "deaths": 318
+    },
+    "right": {
+      "country": "ITALY",
+      "location": "ITALY:  MESSINA, SICILY, CALABRIA",
+      "year": 1908,
+      "magnitude": 7.0,
+      "deaths": 80000
+    }
+  },
+  {
+    "left": {
+      "country": "INDONESIA",
+      "location": "INDONESIA:   SULAWESI:  TOJO",
+      "year": 2002,
+      "magnitude": 6.2,
+      "deaths": 48
+    },
+    "right": {
+      "country": "JAPAN",
+      "location": "JAPAN:  HONSHU:  CENTRAL: MT ONTAKE",
+      "year": 1984,
+      "magnitude": 6.1,
+      "deaths": 29
+    }
+  },
+  {
+    "left": {
+      "country": "JAPAN",
+      "location": "JAPAN:  OSHIMA",
+      "year": 1856,
+      "magnitude": 8.0,
+      "deaths": 26
+    },
+    "right": {
+      "country": "PERU",
+      "location": "PERU:  LA LIBERTAD, CAJAMARCA; ECUADOR",
+      "year": 2019,
+      "magnitude": 8.0,
+      "deaths": 2
+    }
+  },
+  {
+    "left": {
+      "country": "GREECE",
+      "location": "GREECE:  IONIAN ISLANDS:  LEUKAS",
+      "year": 1825,
+      "magnitude": 6.8,
+      "deaths": 60
+    },
+    "right": {
+      "country": "TURKEY",
+      "location": "TURKEY:  ERZURUM",
+      "year": 1924,
+      "magnitude": 6.8,
+      "deaths": 60
+    }
+  },
+  {
+    "left": {
+      "country": "TAIWAN",
+      "location": "TAIWAN",
+      "year": 1966,
+      "magnitude": 8.0,
+      "deaths": 7
+    },
+    "right": {
+      "country": "CHILE",
+      "location": "CHILE:  TIERRA DEL FUEGO",
+      "year": 1949,
+      "magnitude": 7.8,
+      "deaths": 1
+    }
+  },
+  {
+    "left": {
+      "country": "IRAN",
+      "location": "IRAN: BIRJAND, GHAEN;  AFGHANISTAN",
+      "year": 1997,
+      "magnitude": 7.2,
+      "deaths": 1728
+    },
+    "right": {
+      "country": "ECUADOR",
+      "location": "ECUADOR:  QUITO",
+      "year": 1995,
+      "magnitude": 7.0,
+      "deaths": 2
+    }
+  },
+  {
+    "left": {
+      "country": "IRAN",
+      "location": "IRAN: BUSHIRE",
+      "year": 1950,
+      "magnitude": 5.7,
+      "deaths": 30
+    },
+    "right": {
+      "country": "PAKISTAN",
+      "location": "PAKISTAN:  BALAKOT, BATGRAM, MANSEHRA",
+      "year": 2004,
+      "magnitude": 5.4,
+      "deaths": 24
+    }
+  },
+  {
+    "left": {
+      "country": "CHINA",
+      "location": "CHINA:  BEIJING",
+      "year": 1730,
+      "magnitude": 6.5,
+      "deaths": 658
+    },
+    "right": {
+      "country": "JAPAN",
+      "location": "JAPAN:  KYUSHU",
+      "year": 1968,
+      "magnitude": 6.3,
+      "deaths": 3
+    }
+  },
+  {
+    "left": {
+      "country": "CHINA",
+      "location": "CHINA:  TIBET (XIZANG PROVINCE)",
+      "year": 1915,
+      "magnitude": 7.0,
+      "deaths": 170
+    },
+    "right": {
+      "country": "IRAN",
+      "location": "IRAN:  TASH, ASTRABAD (GORGAN), BASTAM, SHAKHRUD",
+      "year": 1890,
+      "magnitude": 7.2,
+      "deaths": 171
+    }
+  },
+  {
+    "left": {
+      "country": "CHINA",
+      "location": "CHINA:  SICHUAN PROVINCE",
+      "year": 2022,
+      "magnitude": 6.6,
+      "deaths": 118
+    },
+    "right": {
+      "country": "CHILE",
+      "location": "CHILE:  CATALINA, ANTOFAGASTA",
+      "year": 1971,
+      "magnitude": 6.3,
+      "deaths": 1
+    }
+  },
+  {
+    "left": {
+      "country": "CHILE",
+      "location": "CHILE:  ANTOFAGASTA, ARICA",
+      "year": 1987,
+      "magnitude": 7.3,
+      "deaths": 1
+    },
+    "right": {
+      "country": "RUSSIA",
+      "location": "RUSSIA:  KOSH-AGACH, UST'-ULAGAN, ONGUDAI, SHEBALINO",
+      "year": 2003,
+      "magnitude": 7.3,
+      "deaths": 3
+    }
+  },
+  {
+    "left": {
+      "country": "COSTA RICA",
+      "location": "COSTA RICA:  SAN JOSE, PARRITA, QUEPOS",
+      "year": 2004,
+      "magnitude": 6.4,
+      "deaths": 8
+    },
+    "right": {
+      "country": "NEPAL-INDIA",
+      "location": "NEPAL-INDIA:  KATHMANDU, BIHAR",
+      "year": 1988,
+      "magnitude": 6.6,
+      "deaths": 998
+    }
+  },
+  {
+    "left": {
+      "country": "IRAN",
+      "location": "IRAN:  SOUTHERN",
+      "year": 2006,
+      "magnitude": 5.9,
+      "deaths": 1
+    },
+    "right": {
+      "country": "IRAN",
+      "location": "IRAN:  KASHMAR",
+      "year": 1903,
+      "magnitude": 5.9,
+      "deaths": 350
+    }
+  },
+  {
+    "left": {
+      "country": "COLOMBIA",
+      "location": "COLOMBIA:  HUILA, NEIVA, RIVERA,SAN ANTONIO",
+      "year": 1967,
+      "magnitude": 7.0,
+      "deaths": 98
+    },
+    "right": {
+      "country": "CALIFORNIA",
+      "location": "CALIFORNIA:  SANTA BARBARA",
+      "year": 1925,
+      "magnitude": 6.8,
+      "deaths": 13
+    }
+  },
+  {
+    "left": {
+      "country": "PERU",
+      "location": "PERU:  LIMA, CALLAO",
+      "year": 1828,
+      "magnitude": 8.3,
+      "deaths": 30
+    },
+    "right": {
+      "country": "JAPAN",
+      "location": "JAPAN:  HOKKAIDO",
+      "year": 2003,
+      "magnitude": 8.3,
+      "deaths": 2
+    }
+  },
+  {
+    "left": {
+      "country": "CHINA",
+      "location": "CHINA:  SICHUAN:  XICHANG",
+      "year": 1850,
+      "magnitude": 7.5,
+      "deaths": 20650
+    },
+    "right": {
+      "country": "CHILE",
+      "location": "CHILE:  TARAPACA",
+      "year": 2005,
+      "magnitude": 7.7,
+      "deaths": 11
+    }
+  },
+  {
+    "left": {
+      "country": "ECUADOR",
+      "location": "ECUADOR:  GUAYAQUIL,IBARRA; COLOMBIA:  SAN PABLO",
+      "year": 1868,
+      "magnitude": 7.7,
+      "deaths": 70000
+    },
+    "right": {
+      "country": "PAPUA NEW GUINEA",
+      "location": "PAPUA NEW GUINEA:  MADANG",
+      "year": 1970,
+      "magnitude": 7.3,
+      "deaths": 18
+    }
+  },
+  {
+    "left": {
+      "country": "PERU",
+      "location": "PERU:  CENTRAL",
+      "year": 1981,
+      "magnitude": 5.2,
+      "deaths": 10
+    },
+    "right": {
+      "country": "CHINA",
+      "location": "CHINA:  YUNNAN PROVINCE:  BAOSHAN",
+      "year": 1579,
+      "magnitude": 5.0,
+      "deaths": 10
+    }
+  },
+  {
+    "left": {
+      "country": "GUADELOUPE",
+      "location": "GUADELOUPE:  POINTE-A-PITRE",
+      "year": 1843,
+      "magnitude": 8.3,
+      "deaths": 5000
+    },
+    "right": {
+      "country": "CHILE",
+      "location": "CHILE:  OLD CONCEPCION",
+      "year": 1570,
+      "magnitude": 8.3,
+      "deaths": 2000
+    }
+  },
+  {
+    "left": {
+      "country": "CALIFORNIA",
+      "location": "CALIFORNIA:  KERN COUNTY",
+      "year": 1952,
+      "magnitude": 7.7,
+      "deaths": 12
+    },
+    "right": {
+      "country": "PERU",
+      "location": "PERU: TRUJILLO, ANCASH, LIMA",
+      "year": 1725,
+      "magnitude": 7.7,
+      "deaths": 1500
+    }
+  },
+  {
+    "left": {
+      "country": "TANZANIA",
+      "location": "TANZANIA:  LAKE VICTORIA;  UGANDA: RAKAI",
+      "year": 2016,
+      "magnitude": 5.9,
+      "deaths": 23
+    },
+    "right": {
+      "country": "IRAN",
+      "location": "IRAN:  KHORASAN PROVINCE",
+      "year": 1976,
+      "magnitude": 6.0,
+      "deaths": 17
+    }
+  }
+]
