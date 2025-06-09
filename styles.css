@@ -1169,6 +1169,13 @@ body {
   pointer-events: none !important;
 }
 
+/* Keep infrastructure data visualization bright without opacity transition */
+.story-step[data-step="infrastructure-data-visualization"] .step-content {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+  transition: none !important;
+}
+
 .category-label {
   font-size: 0.75rem;
   font-weight: 600;
@@ -2443,6 +2450,11 @@ footer {
   .infra-card {
     max-width: none;
   }
+  
+  /* Main Infrastructure Analysis responsive */
+  .infrastructure-main-content .chart-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2473,5 +2485,515 @@ footer {
   .view-btn {
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
+  }
+}
+
+/* Main Infrastructure Analysis Layout */
+.infrastructure-analysis-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.infrastructure-main-content {
+  background: var(--glass-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 30px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px var(--shadow-color);
+}
+
+.infrastructure-main-content .stats-panel {
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+.infrastructure-main-content .chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.infrastructure-main-content .chart-container {
+  background: var(--glass-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.infrastructure-main-content .chart-title {
+  margin: 0 0 12px 0;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+
+
+/* Infrastructure Final Analysis Styles */
+.infrastructure-final-analysis {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background: var(--glass-bg);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 40px var(--shadow-color);
+}
+
+.infrastructure-intro {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  color: var(--text-secondary);
+}
+
+/* Infrastructure Score Section */
+.infrastructure-score-section {
+  margin: 3rem 0;
+}
+
+.infrastructure-score-section h3 {
+  color: var(--accent-color);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.score-explanation {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.score-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.score-component {
+  background: var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.score-component:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.component-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.component-icon {
+  font-size: 1.5rem;
+  margin-right: 0.8rem;
+}
+
+.component-title {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.component-weight {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.component-description {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Key Statistics Section */
+.key-statistics-section {
+  margin: 3rem 0;
+}
+
+.key-statistics-section h3 {
+  color: var(--accent-color);
+  font-size: 1.4rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.statistics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.stat-card {
+  background: var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent-color);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+/* Charts Section */
+.charts-section {
+  margin: 3rem 0;
+}
+
+.charts-section h3 {
+  color: var(--accent-color);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.charts-intro {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.bar-charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.chart-wrapper {
+  background: var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart-wrapper:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.chart-wrapper h4 {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.bar-chart {
+  width: 100%;
+  height: 280px;
+  margin: 1rem 0;
+}
+
+.chart-insight {
+  font-size: 0.85rem;
+  color: var(--accent-color);
+  text-align: center;
+  font-style: italic;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+/* Infrastructure Importance Section */
+.infrastructure-importance {
+  margin: 3rem 0;
+}
+
+.infrastructure-importance h3 {
+  color: var(--accent-color);
+  font-size: 1.4rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.importance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.importance-card {
+  background: var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.importance-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.importance-card h4 {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.importance-card p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Final Conclusion Section */
+.final-conclusion {
+  margin: 3rem 0;
+  text-align: center;
+}
+
+.final-conclusion h3 {
+  color: var(--accent-color);
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.conclusion-text {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.conclusion-cta {
+  margin-top: 2rem;
+}
+
+.conclusion-cta p {
+  font-size: 1.2rem;
+  color: var(--accent-color);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Bar Chart Tooltip Styles */
+.bar-chart-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 1000;
+  line-height: 1.4;
+}
+
+/* Responsive Design for Infrastructure Analysis */
+@media (max-width: 768px) {
+  .infrastructure-final-analysis {
+    padding: 20px 15px;
+  }
+  
+  .score-breakdown {
+    grid-template-columns: 1fr;
+  }
+  
+  .statistics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  
+  .bar-charts-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .importance-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-number {
+    font-size: 2rem;
+  }
+  
+    .conclusion-text {
+    font-size: 1rem;
+  }
+}
+
+/* Additional styles for enhanced infrastructure analysis */
+.component-examples {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  font-style: italic;
+}
+
+.evidence-stat {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--accent-color);
+  font-weight: 600;
+  background: rgba(78, 205, 196, 0.1);
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  border-left: 3px solid var(--accent-color);
+}
+
+/* Investment Analysis Section */
+.investment-analysis-section {
+  margin: 3rem 0;
+}
+
+.investment-analysis-section h3 {
+  color: var(--accent-color);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.investment-intro {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.investment-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.investment-scenario {
+  background: var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.investment-scenario:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.investment-scenario h4 {
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.cost-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cost-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.cost-item:last-child {
+  border-bottom: none;
+}
+
+.cost-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.cost-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+/* Enhanced Conclusion Styles */
+.conclusion-highlights {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--border-color);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.highlight-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.highlight-number {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--accent-color);
+  line-height: 1;
+}
+
+.highlight-text {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  max-width: 300px;
+}
+
+/* Responsive Design for Investment Analysis */
+@media (max-width: 768px) {
+  .investment-comparison {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .investment-scenario {
+    padding: 1.5rem;
+  }
+  
+  .cost-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+  
+  .highlight-number {
+    font-size: 2.5rem;
   }
 }

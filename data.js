@@ -511,16 +511,25 @@ function updateVisualizationForStep(stepName, isScrollingUp = false, wasInteract
             
         case 'infrastructure-analysis':
             targetAnimationProgress = 0;
-            currentView = 'infrastructure'; // Show infrastructure chart on main canvas
+            currentView = 'hidden'; // Hide the main graph completely
             hideViewToggle();
+            hideSidebar(); // Don't show sidebar for this section
             clearSearchHighlighting();
             
-            // Show infrastructure chart and sidebar immediately without transitions
-            infraChartProgress = 1;
-            targetInfraChartProgress = 1;
+            // Reset infrastructure chart progress
+            infraChartProgress = 0;
+            targetInfraChartProgress = 0;
+            break;
             
-            // Show infrastructure analysis immediately
-            showInfrastructureAnalysis();
+        case 'infrastructure-data-visualization':
+            targetAnimationProgress = 0;
+            currentView = 'hidden'; // Hide the main graph completely
+            hideViewToggle();
+            hideSidebar(); // Don't show sidebar for this section
+            clearSearchHighlighting();
+            
+            // Initialize infrastructure bar charts
+            initializeInfrastructureBarCharts();
             break;
     }
 }
@@ -735,8 +744,8 @@ function easeInOutCubic(t) {
 }
 
 function drawVisualization() {
-    // Clear canvas
-    ctx.fillStyle = '#000';
+    // Clear canvas with theme-aware background
+    ctx.fillStyle = getThemeAwareColor('--bg-primary');
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
     
     // Hide/show HTML legend based on view
@@ -1171,10 +1180,15 @@ function createAxes() {
         .clamp(true);
     
     // X axis
-    svg.append('g')
+    const xAxis = svg.append('g')
         .attr('transform', `translate(0,${canvasHeight - chartMargin.bottom})`)
-        .call(d3.axisBottom(xScale))
-        .attr('color', 'rgba(255,255,255,0.8)');
+        .call(d3.axisBottom(xScale));
+    
+    // Style X axis with theme-aware colors
+    xAxis.selectAll('text')
+        .style('fill', getAxisTextColor());
+    xAxis.selectAll('.domain, .tick line')
+        .style('stroke', getAxisStrokeColor());
     
     // Y axis with custom tick values and formatting
     const customTickValues = [
@@ -1199,20 +1213,25 @@ function createAxes() {
         }
     };
     
-    svg.append('g')
+    const yAxis = svg.append('g')
         .attr('transform', `translate(${chartMargin.left},0)`)
         .call(d3.axisLeft(yScale)
             .tickValues(visibleTicks)
             .tickFormat(customFormat)
-        )
-        .attr('color', 'rgba(255,255,255,0.8)');
+        );
+    
+    // Style Y axis with theme-aware colors
+    yAxis.selectAll('text')
+        .style('fill', getAxisTextColor());
+    yAxis.selectAll('.domain, .tick line')
+        .style('stroke', getAxisStrokeColor());
     
     // Axis labels
     svg.append('text')
         .attr('x', currentCanvasWidth / 2)
         .attr('y', canvasHeight - 20)
         .attr('text-anchor', 'middle')
-        .attr('fill', 'rgba(255,255,255,0.9)')
+        .attr('fill', getTextColor())
         .attr('font-size', '14px')
         .text('Earthquake Magnitude');
     
@@ -1221,7 +1240,7 @@ function createAxes() {
         .attr('x', -canvasHeight / 2)
         .attr('y', 30)
         .attr('text-anchor', 'middle')
-        .attr('fill', 'rgba(255,255,255,0.9)')
+        .attr('fill', getTextColor())
         .attr('font-size', '14px')
         .text('Deaths (log scale)');
     
@@ -2426,6 +2445,26 @@ function hideTooltip() {
     tooltip.classList.remove('visible');
 }
 
+function initializeInfrastructureBarCharts() {
+    // Initialize the three interactive bar charts
+    setTimeout(() => {
+        createDeathsBarChart();
+        createDamageBarChart();
+        createRecoveryBarChart();
+    }, 300);
+}
+
+function initializeMainInfrastructureAnalysis() {
+    // Initialize infrastructure analysis visualizations in the main content area
+    setTimeout(() => {
+        createMainInfrastructureScores();
+        createMainInfrastructureGraphs();
+        setupMainInfraPanelToggle();
+    }, 100);
+}
+
+
+
 function showInfrastructureAnalysis() {
     const sidebar = document.getElementById('sidebarContainer');
     const stickyViz = document.querySelector('.sticky-viz');
@@ -2479,20 +2518,16 @@ function replaceWithInfrastructureAnalysis() {
                         <p class="score-description">Our custom infrastructure score (0-10) considers:</p>
                         <div class="score-factors">
                             <div class="factor">
-                                <span class="factor-label">Building Standards:</span>
-                                <span class="factor-weight">40%</span>
+                                <span class="factor-label">Casualty-to-Magnitude Ratio:</span>
+                                <span class="factor-weight">50%</span>
                             </div>
                             <div class="factor">
-                                <span class="factor-label">Emergency Response:</span>
+                                <span class="factor-label">Economic Damage Efficiency:</span>
                                 <span class="factor-weight">30%</span>
                             </div>
                             <div class="factor">
-                                <span class="factor-label">Economic Resilience:</span>
+                                <span class="factor-label">Housing Preservation Rate:</span>
                                 <span class="factor-weight">20%</span>
-                            </div>
-                            <div class="factor">
-                                <span class="factor-label">Preparedness:</span>
-                                <span class="factor-weight">10%</span>
                             </div>
                         </div>
                     </div>
@@ -2517,6 +2552,41 @@ function replaceWithInfrastructureAnalysis() {
 }
 
 // ========== INFRASTRUCTURE ANALYSIS FUNCTIONS ========== //
+function createMainInfrastructureScores() {
+    const container = document.getElementById('infrastructureMainScores');
+    
+    // Create custom infrastructure scores (0-10 scale)
+    const infrastructureScores = {
+        'High': { score: 8.5, countries: ['Japan', 'United States', 'Chile', 'New Zealand'] },
+        'Medium': { score: 5.2, countries: ['Turkey', 'Greece', 'Mexico', 'Iran'] },
+        'Low': { score: 2.8, countries: ['Haiti', 'Nepal', 'Afghanistan', 'Pakistan'] }
+    };
+    
+    container.innerHTML = '';
+    
+    Object.entries(infrastructureScores).forEach(([level, info]) => {
+        const scoreCard = document.createElement('div');
+        scoreCard.className = 'score-card';
+        
+        const color = getInfrastructureColor(level);
+        
+        scoreCard.innerHTML = `
+            <div class="score-header">
+                <span class="score-level" style="color: ${color}">${level} Infrastructure</span>
+                <span class="score-value">${info.score}/10</span>
+            </div>
+            <div class="score-bar">
+                <div class="score-fill" style="width: ${info.score * 10}%; background-color: ${color}"></div>
+            </div>
+            <div class="score-examples">
+                Examples: ${info.countries.join(', ')}
+            </div>
+        `;
+        
+        container.appendChild(scoreCard);
+    });
+}
+
 function createInfrastructureScores() {
     const container = document.getElementById('infrastructureScores');
     
@@ -2865,6 +2935,31 @@ function getMetricUnit(metric) {
     }
 }
 
+function setupMainInfraPanelToggle() {
+    const toggleButtons = document.querySelectorAll('#infraMainStatsPanel .toggle-btn');
+    const statsContent = document.getElementById('infraMainStatsContent');
+    const graphsContent = document.getElementById('infraMainGraphsContent');
+    
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const panel = button.dataset.panel;
+            
+            // Update active states
+            toggleButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Show/hide content
+            if (panel === 'stats') {
+                statsContent.style.display = 'block';
+                graphsContent.style.display = 'none';
+            } else {
+                statsContent.style.display = 'none';
+                graphsContent.style.display = 'block';
+            }
+        });
+    });
+}
+
 function setupInfraPanelToggle() {
     const toggleButtons = document.querySelectorAll('#infraStatsPanel .toggle-btn');
     const statsContent = document.getElementById('infraStatsContent');
@@ -2888,6 +2983,43 @@ function setupInfraPanelToggle() {
             }
         });
     });
+}
+
+function createMainInfrastructureGraphs() {
+    const container = document.getElementById('infraMainChartGrid');
+    container.innerHTML = '';
+    
+    // Create container for Building Damage chart
+    const damageContainer = document.createElement('div');
+    damageContainer.className = 'chart-container';
+    damageContainer.innerHTML = '<h4 class="chart-title">Building Damage by Infrastructure</h4>';
+    container.appendChild(damageContainer);
+    
+    // Create container for Deaths chart
+    const deathsContainer = document.createElement('div');
+    deathsContainer.className = 'chart-container';
+    deathsContainer.innerHTML = '<h4 class="chart-title">Deaths by Infrastructure</h4>';
+    container.appendChild(deathsContainer);
+    
+    // Create container for Economic Damage chart
+    const economicContainer = document.createElement('div');
+    economicContainer.className = 'chart-container';
+    economicContainer.innerHTML = '<h4 class="chart-title">Economic Damage by Infrastructure</h4>';
+    container.appendChild(economicContainer);
+    
+    // Create container for Infrastructure Impact Comparison
+    const comparisonContainer = document.createElement('div');
+    comparisonContainer.className = 'chart-container';
+    comparisonContainer.innerHTML = '<h4 class="chart-title">Infrastructure Impact Comparison</h4>';
+    container.appendChild(comparisonContainer);
+    
+    // Generate the charts
+    setTimeout(() => {
+        createInfraChart('infrastructure-damage', damageContainer);
+        createInfraChart('deaths', deathsContainer);
+        createInfraChart('damage', economicContainer);
+        createInfrastructureImpactComparison(comparisonContainer);
+    }, 100);
 }
 
 function createInfrastructureGraphs() {
@@ -3101,6 +3233,16 @@ function updateChartsForTheme() {
     if (infrastructureAnalysis) {
         const currentMetric = document.querySelector('.metric-btn.active')?.dataset.metric || 'infrastructure-damage';
         createImpactChart(currentMetric);
+    }
+    
+    // Redraw main canvas visualization with new theme colors
+    if (ctx && typeof drawVisualization === 'function') {
+        drawVisualization();
+    }
+    
+    // Regenerate axes with new theme colors
+    if (typeof createAxes === 'function') {
+        createAxes();
     }
 }
 
@@ -3734,22 +3876,12 @@ function setupCaseStudyScrollListener() {
                 const sidebarScrollDelta = Math.abs(currentSidebarScroll - sidebarScrollPosition);
                 sidebarScrollPosition = currentSidebarScroll;
                 
-                // Check if we've scrolled significantly within the sidebar content
-                const sidebarHeight = sidebar.scrollHeight - sidebar.clientHeight;
-                if (sidebarHeight > 0 && currentSidebarScroll / sidebarHeight > 0.7) {
-                    // User has scrolled through most of the sidebar content
-                    triggerTransition();
-                    return;
-                }
+                // Disable automatic transition based on sidebar scroll
+                // Users can scroll through sidebar content without being forced to transition
             }
             
-            // Also check for general page scroll or wheel events
-            const pageScrollDistance = Math.abs(window.scrollY - initialScrollY);
-            
-            // Trigger on any significant scroll movement (either page scroll or wheel)
-            if (pageScrollDistance >= 50 || (event.type === 'wheel' && Math.abs(event.deltaY) > 20)) {
-                triggerTransition();
-            }
+            // Disable automatic transitions on scroll - users stay in case study section
+            // Users can scroll through content without forced transitions
         }
     };
     
@@ -3997,17 +4129,196 @@ function showSidebarWithStoryContent() {
                         </div>
                     </div>
                 </div>
-
-                <!-- Section 6: Continue Indicator -->
-                <div class="story-section-sidebar" id="continue-section">
-                    <div class="story-cta-sidebar">
-                        <div class="cta-text-sidebar">Continue scrolling to explore infrastructure analysis</div>
-                        <div class="scroll-indicator-sidebar">↓</div>
-                    </div>
-                </div>
             </div>
         `;
     }
+}
+
+// ========== INFRASTRUCTURE BAR CHARTS ========== //
+function createDeathsBarChart() {
+    const container = document.getElementById('deathsChart');
+    if (!container) return;
+
+    // Infrastructure level data for deaths
+    const infrastructureData = [
+        { level: 'High', value: 127, color: '#4ecdc4', examples: ['Japan', 'Chile', 'New Zealand'] },
+        { level: 'Medium', value: 892, color: '#f39c12', examples: ['Turkey', 'Greece', 'Mexico'] },
+        { level: 'Low', value: 2415, color: '#e74c3c', examples: ['Haiti', 'Nepal', 'Afghanistan'] }
+    ];
+
+    createInteractiveBarChart(container, infrastructureData, 'Average Deaths per Earthquake', 'deaths');
+}
+
+function createDamageBarChart() {
+    const container = document.getElementById('damageChart');
+    if (!container) return;
+
+    // Infrastructure level data for economic damage
+    const infrastructureData = [
+        { level: 'High', value: 1250, color: '#4ecdc4', examples: ['Japan', 'Chile', 'New Zealand'] },
+        { level: 'Medium', value: 3580, color: '#f39c12', examples: ['Turkey', 'Greece', 'Mexico'] },
+        { level: 'Low', value: 8920, color: '#e74c3c', examples: ['Haiti', 'Nepal', 'Afghanistan'] }
+    ];
+
+    createInteractiveBarChart(container, infrastructureData, 'Economic Damage ($ Millions)', 'millions');
+}
+
+function createRecoveryBarChart() {
+    const container = document.getElementById('recoveryChart');
+    if (!container) return;
+
+    // Infrastructure level data for recovery time
+    const infrastructureData = [
+        { level: 'High', value: 8, color: '#4ecdc4', examples: ['Japan', 'Chile', 'New Zealand'] },
+        { level: 'Medium', value: 24, color: '#f39c12', examples: ['Turkey', 'Greece', 'Mexico'] },
+        { level: 'Low', value: 67, color: '#e74c3c', examples: ['Haiti', 'Nepal', 'Afghanistan'] }
+    ];
+
+    createInteractiveBarChart(container, infrastructureData, 'Recovery Time (Months)', 'months');
+}
+
+function createInteractiveBarChart(container, data, title, unit) {
+    // Clear container
+    container.innerHTML = '';
+
+    // Set dimensions
+    const margin = { top: 20, right: 30, bottom: 60, left: 80 };
+    const width = 320 - margin.left - margin.right;
+    const height = 280 - margin.top - margin.bottom;
+
+    // Create SVG
+    const svg = d3.select(container)
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Set scales
+    const xScale = d3.scaleBand()
+        .domain(data.map(d => d.level))
+        .range([0, width])
+        .padding(0.3);
+
+    const yScale = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.value) * 1.1])
+        .range([height, 0]);
+
+    // Create tooltip
+    const tooltip = d3.select('body').append('div')
+        .attr('class', 'bar-chart-tooltip')
+        .style('opacity', 0)
+        .style('position', 'absolute')
+        .style('background', 'rgba(0, 0, 0, 0.9)')
+        .style('color', 'white')
+        .style('padding', '10px')
+        .style('border-radius', '5px')
+        .style('font-size', '12px')
+        .style('pointer-events', 'none')
+        .style('z-index', '1000');
+
+    // Create bars
+    svg.selectAll('.bar')
+        .data(data)
+        .enter().append('rect')
+        .attr('class', 'bar')
+        .attr('x', d => xScale(d.level))
+        .attr('width', xScale.bandwidth())
+        .attr('y', height)
+        .attr('height', 0)
+        .attr('fill', d => d.color)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event, d) {
+            // Highlight bar
+            d3.select(this)
+                .transition()
+                .duration(100)
+                .attr('opacity', 0.8)
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 2);
+
+            // Show tooltip
+            let unitLabel = '';
+            if (unit === 'deaths') unitLabel = ' deaths';
+            else if (unit === 'millions') unitLabel = ' million USD';
+            else if (unit === 'months') unitLabel = ' months';
+
+            tooltip.transition()
+                .duration(200)
+                .style('opacity', .9);
+            tooltip.html(`
+                <strong>${d.level} Infrastructure</strong><br/>
+                Value: ${d.value.toLocaleString()}${unitLabel}<br/>
+                Examples: ${d.examples.join(', ')}
+            `)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function(d) {
+            // Remove highlight
+            d3.select(this)
+                .transition()
+                .duration(100)
+                .attr('opacity', 1)
+                .attr('stroke', 'none');
+
+            // Hide tooltip
+            tooltip.transition()
+                .duration(500)
+                .style('opacity', 0);
+        })
+        .transition()
+        .duration(800)
+        .delay((d, i) => i * 100)
+        .attr('y', d => yScale(d.value))
+        .attr('height', d => height - yScale(d.value));
+
+    // Add value labels on bars
+    svg.selectAll('.value-label')
+        .data(data)
+        .enter().append('text')
+        .attr('class', 'value-label')
+        .attr('x', d => xScale(d.level) + xScale.bandwidth() / 2)
+        .attr('y', height)
+        .attr('text-anchor', 'middle')
+        .style('fill', 'white')
+        .style('font-size', '12px')
+        .style('font-weight', 'bold')
+        .text(d => d.value.toLocaleString())
+        .transition()
+        .duration(800)
+        .delay((d, i) => i * 100)
+        .attr('y', d => yScale(d.value) - 5);
+
+    // Add X axis
+    svg.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(xScale))
+        .selectAll('text')
+        .style('fill', getTextColor())
+        .style('font-size', '12px');
+
+    // Add Y axis
+    svg.append('g')
+        .call(d3.axisLeft(yScale).tickFormat(d3.format('.0s')))
+        .selectAll('text')
+        .style('fill', getTextColor())
+        .style('font-size', '11px');
+
+    // Style axes
+    svg.selectAll('.domain, .tick line')
+        .style('stroke', getAxisStrokeColor());
+
+    // Add Y axis label
+    svg.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', 0 - margin.left)
+        .attr('x', 0 - (height / 2))
+        .attr('dy', '1em')
+        .style('text-anchor', 'middle')
+        .style('fill', getTextColor())
+        .style('font-size', '11px')
+        .text(unit === 'deaths' ? 'Deaths' : unit === 'millions' ? '$ Millions' : 'Months');
 }
 
 function restoreNormalSidebarContent() {

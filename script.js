@@ -123,13 +123,17 @@ function renderIntroGlobe() {
         .attr("cx", "30%")
         .attr("cy", "30%");
     
-    gradient.append("stop")
-        .attr("offset", "0%")
-        .attr("style", "stop-color:#1a1a1a;stop-opacity:1");
+        // Get theme-aware colors for gradient
+    const darkColor = getThemeAwareColor('--bg-primary');
+    const lighterColor = getThemeAwareColor('--bg-secondary');
     
     gradient.append("stop")
+        .attr("offset", "0%")
+        .attr("style", `stop-color:${lighterColor};stop-opacity:1`);
+
+    gradient.append("stop")
         .attr("offset", "100%")
-        .attr("style", "stop-color:#0a0a0a;stop-opacity:1");
+        .attr("style", `stop-color:${darkColor};stop-opacity:1`);
 
     // Sphere background
     introSvg.append("circle")
@@ -137,7 +141,7 @@ function renderIntroGlobe() {
         .attr("cy", 400)
         .attr("r", 350)
         .attr("fill", "url(#sphereGradient)")
-        .attr("stroke", "#333333")
+        .attr("stroke", getThemeAwareColor('--border-color'))
         .attr("stroke-width", 1)
         .attr("opacity", 1);
 
@@ -147,9 +151,9 @@ function renderIntroGlobe() {
         .attr("class", "graticule")
         .attr("d", introPath)
         .attr("fill", "none")
-        .attr("stroke", "#222222")
+        .attr("stroke", getThemeAwareColor('--border-color'))
         .attr("stroke-width", 0.5)
-        .attr("opacity", 0.2);
+        .attr("opacity", 0.3);
 
     // Countries
     introSvg.selectAll(".country")
@@ -157,8 +161,8 @@ function renderIntroGlobe() {
         .enter().append("path")
         .attr("class", "country")
         .attr("d", introPath)
-        .attr("fill", "#1a1a1a")
-        .attr("stroke", "#2a2a2a")
+        .attr("fill", getThemeAwareColor('--bg-secondary'))
+        .attr("stroke", getThemeAwareColor('--border-color'))
         .attr("stroke-width", 0.5)
         .attr("opacity", 1);
 
@@ -196,7 +200,24 @@ function renderIntroGlobe() {
                     .attr("fill", color)
                     .attr("stroke", strokeColor)
                     .attr("stroke-width", strokeWidth)
-                    .attr("opacity", 0.9);
+                    .attr("opacity", 0.9)
+                    .style("cursor", "pointer")
+                    .on("mouseover", function(event) {
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr("r", size + 2)
+                            .attr("stroke-width", strokeWidth + 1);
+                        showTooltip(event, earthquake);
+                    })
+                    .on("mouseout", function(event) {
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr("r", size)
+                            .attr("stroke-width", strokeWidth);
+                        hideTooltip();
+                    });
                     
             } else if (earthquake.devastating) {
                 // High death toll - bright red
@@ -213,7 +234,24 @@ function renderIntroGlobe() {
                     .attr("fill", color)
                     .attr("stroke", strokeColor)
                     .attr("stroke-width", strokeWidth)
-                    .attr("opacity", 0.8);
+                    .attr("opacity", 0.8)
+                    .style("cursor", "pointer")
+                    .on("mouseover", function(event) {
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr("r", size + 1)
+                            .attr("stroke-width", strokeWidth + 0.5);
+                        showTooltip(event, earthquake);
+                    })
+                    .on("mouseout", function(event) {
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr("r", size)
+                            .attr("stroke-width", strokeWidth);
+                        hideTooltip();
+                    });
                     
             } else if (earthquake.major) {
                 // High magnitude - orange/yellow
@@ -230,7 +268,24 @@ function renderIntroGlobe() {
                     .attr("fill", color)
                     .attr("stroke", strokeColor)
                     .attr("stroke-width", strokeWidth)
-                    .attr("opacity", 0.7);
+                    .attr("opacity", 0.7)
+                    .style("cursor", "pointer")
+                    .on("mouseover", function(event) {
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr("r", size + 1)
+                            .attr("stroke-width", strokeWidth + 0.5);
+                        showTooltip(event, earthquake);
+                    })
+                    .on("mouseout", function(event) {
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr("r", size)
+                            .attr("stroke-width", strokeWidth);
+                        hideTooltip();
+                    });
             }
         }
     });
@@ -250,13 +305,17 @@ function renderMainGlobe() {
         .attr("cx", "30%")
         .attr("cy", "30%");
     
+    // Get theme-aware colors for gradient
+    const mainDarkColor = getThemeAwareColor('--bg-primary');
+    const mainLighterColor = getThemeAwareColor('--bg-secondary');
+    
     gradient.append("stop")
         .attr("offset", "0%")
-        .attr("style", "stop-color:#1a1a1a;stop-opacity:1");
+        .attr("style", `stop-color:${mainLighterColor};stop-opacity:1`);
     
     gradient.append("stop")
         .attr("offset", "100%")
-        .attr("style", "stop-color:#0a0a0a;stop-opacity:1");
+        .attr("style", `stop-color:${mainDarkColor};stop-opacity:1`);
 
     // Sphere background - fully opaque
     mainSvg.append("circle")
@@ -264,7 +323,7 @@ function renderMainGlobe() {
         .attr("cy", 400)
         .attr("r", 350)
         .attr("fill", "url(#sphereGradientMain)")
-        .attr("stroke", "#333333")
+        .attr("stroke", getThemeAwareColor('--border-color'))
         .attr("stroke-width", 1)
         .attr("opacity", 1);
 
@@ -274,9 +333,9 @@ function renderMainGlobe() {
         .attr("class", "graticule")
         .attr("d", mainPath)
         .attr("fill", "none")
-        .attr("stroke", "#222222")
+        .attr("stroke", getThemeAwareColor('--border-color'))
         .attr("stroke-width", 0.5)
-        .attr("opacity", 0.2);
+        .attr("opacity", 0.3);
 
     // Countries
     mainSvg.selectAll(".country")
@@ -284,8 +343,8 @@ function renderMainGlobe() {
         .enter().append("path")
         .attr("class", "country")
         .attr("d", mainPath)
-        .attr("fill", "#1a1a1a")
-        .attr("stroke", "#2a2a2a")
+        .attr("fill", getThemeAwareColor('--bg-secondary'))
+        .attr("stroke", getThemeAwareColor('--border-color'))
         .attr("stroke-width", 0.5)
         .attr("opacity", 1);
 
@@ -909,7 +968,14 @@ window.addEventListener('resize', () => {
 });
 
 // Initialize part 1
-window.addEventListener('load', init);
+window.addEventListener('load', () => {
+    init();
+    
+    // Setup theme toggle for index.html
+    if (typeof setupThemeToggle === 'function') {
+        setupThemeToggle();
+    }
+});
 
 // Part 2 initialization function (called when part 2 section becomes active)
 function initializePart2() {
@@ -7068,6 +7134,14 @@ function updateChartsForTheme() {
     if (infrastructureAnalysis) {
         const currentMetric = document.querySelector('.metric-btn.active')?.dataset.metric || 'infrastructure-damage';
         createImpactChart(currentMetric);
+    }
+    
+    // Regenerate globes with new theme colors
+    if (typeof renderIntroGlobe === 'function') {
+        renderIntroGlobe();
+    }
+    if (typeof renderMainGlobe === 'function') {
+        renderMainGlobe();
     }
 }
 

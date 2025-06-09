@@ -418,7 +418,7 @@ svg {
 
 .data-points {
     position: absolute;
-    bottom: 30px;
+    bottom: 90px;
     left: 5%;
     display: flex;
     gap: 60px;
