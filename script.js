@@ -5170,61 +5170,107 @@ function drawVisualization() {
         });
     }
     
-    // Draw all dots first (only if they're within reasonable bounds)
-    visibleDots.forEach(dot => {
-        // Only draw dots that are within or near the visible area
-        const currentCanvasWidth = canvas.offsetWidth || canvasWidth;
-        const maxRadius = dot.currentSize || dot.size;
-        
-        if (dot.currentX >= chartMargin.left - maxRadius && 
-            dot.currentX <= currentCanvasWidth - chartMargin.right + maxRadius &&
-            dot.currentY >= chartMargin.top - maxRadius && 
-            dot.currentY <= canvasHeight - chartMargin.bottom + maxRadius) {
-            
-            let opacity = dot.opacity;
-            
-            // Handle hover highlighting
-            if (hoveredDot) {
-                if (dot === hoveredDot) {
-                    // Keep hovered dot as normal
-                    opacity = dot.opacity;
-                } else {
-                    // Grey out other dots
-                    opacity = Math.max(0.1, dot.opacity * 0.3);
-                }
-            }
-            
-            ctx.fillStyle = dot.color;
-            ctx.globalAlpha = opacity;
-            ctx.beginPath();
-            ctx.arc(dot.currentX, dot.currentY, dot.currentSize || dot.size, 0, 2 * Math.PI);
-            ctx.fill();
-        }
-    });
-    
-    // Draw simple outlines for searched country dots on top
+    // Draw dots with proper layering when country search is active
     if (searchedCountry) {
-        ctx.globalAlpha = 1;
+        // First pass: draw dimmed dots (non-searched countries) in the background
         visibleDots.forEach(dot => {
-            if (dot.data.country.toLowerCase().includes(searchedCountry.toLowerCase())) {
-                // Only draw outlines for dots within visible bounds
+            if (!dot.data.country.toLowerCase().includes(searchedCountry.toLowerCase())) {
+                // Only draw dots that are within or near the visible area
                 const currentCanvasWidth = canvas.offsetWidth || canvasWidth;
-                const maxRadius = (dot.currentSize || dot.size) + 2;
+                const maxRadius = dot.currentSize || dot.size;
                 
                 if (dot.currentX >= chartMargin.left - maxRadius && 
                     dot.currentX <= currentCanvasWidth - chartMargin.right + maxRadius &&
                     dot.currentY >= chartMargin.top - maxRadius && 
                     dot.currentY <= canvasHeight - chartMargin.bottom + maxRadius) {
                     
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 2;
+                    let opacity = dot.opacity;
+                    
+                    // Handle hover highlighting
+                    if (hoveredDot) {
+                        if (dot === hoveredDot) {
+                            opacity = dot.opacity;
+                        } else {
+                            opacity = Math.max(0.1, dot.opacity * 0.3);
+                        }
+                    }
+                    
+                    ctx.fillStyle = dot.color;
+                    ctx.globalAlpha = opacity;
                     ctx.beginPath();
-                    ctx.arc(dot.currentX, dot.currentY, (dot.currentSize || dot.size) + 2, 0, 2 * Math.PI);
-                    ctx.stroke();
+                    ctx.arc(dot.currentX, dot.currentY, dot.currentSize || dot.size, 0, 2 * Math.PI);
+                    ctx.fill();
                 }
             }
         });
+        
+        // Second pass: draw highlighted dots (searched country) on top
+        visibleDots.forEach(dot => {
+            if (dot.data.country.toLowerCase().includes(searchedCountry.toLowerCase())) {
+                // Only draw dots that are within or near the visible area
+                const currentCanvasWidth = canvas.offsetWidth || canvasWidth;
+                const maxRadius = dot.currentSize || dot.size;
+                
+                if (dot.currentX >= chartMargin.left - maxRadius && 
+                    dot.currentX <= currentCanvasWidth - chartMargin.right + maxRadius &&
+                    dot.currentY >= chartMargin.top - maxRadius && 
+                    dot.currentY <= canvasHeight - chartMargin.bottom + maxRadius) {
+                    
+                    let opacity = dot.opacity;
+                    
+                    // Handle hover highlighting
+                    if (hoveredDot) {
+                        if (dot === hoveredDot) {
+                            opacity = dot.opacity;
+                        } else {
+                            opacity = Math.max(0.1, dot.opacity * 0.3);
+                        }
+                    }
+                    
+                    ctx.fillStyle = dot.color;
+                    ctx.globalAlpha = opacity;
+                    ctx.beginPath();
+                    ctx.arc(dot.currentX, dot.currentY, dot.currentSize || dot.size, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            }
+        });
+    } else {
+        // No country search active - draw all dots normally
+        visibleDots.forEach(dot => {
+            // Only draw dots that are within or near the visible area
+            const currentCanvasWidth = canvas.offsetWidth || canvasWidth;
+            const maxRadius = dot.currentSize || dot.size;
+            
+            if (dot.currentX >= chartMargin.left - maxRadius && 
+                dot.currentX <= currentCanvasWidth - chartMargin.right + maxRadius &&
+                dot.currentY >= chartMargin.top - maxRadius && 
+                dot.currentY <= canvasHeight - chartMargin.bottom + maxRadius) {
+                
+                let opacity = dot.opacity;
+                
+                // Handle hover highlighting
+                if (hoveredDot) {
+                    if (dot === hoveredDot) {
+                        // Keep hovered dot as normal
+                        opacity = dot.opacity;
+                    } else {
+                        // Grey out other dots
+                        opacity = Math.max(0.1, dot.opacity * 0.3);
+                    }
+                }
+                
+                ctx.fillStyle = dot.color;
+                ctx.globalAlpha = opacity;
+                ctx.beginPath();
+                ctx.arc(dot.currentX, dot.currentY, dot.currentSize || dot.size, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        });
     }
+    
+    // Remove the white outlines completely when searching for a country
+    // The highlighting will be handled by adjusting the opacity of dots instead
     
     ctx.globalAlpha = 1;
 }
@@ -6518,8 +6564,17 @@ function handleMouseMove(event) {
         
         // Check if mouse is within the dot
         if (distance <= radius && distance < minDistance) {
-            minDistance = distance;
-            closestDot = dot;
+            // If we're searching for a country, only allow tooltip for matching dots
+            if (searchedCountry) {
+                if (dot.data.country.toLowerCase().includes(searchedCountry.toLowerCase())) {
+                    minDistance = distance;
+                    closestDot = dot;
+                }
+            } else {
+                // No country search active, allow any dot
+                minDistance = distance;
+                closestDot = dot;
+            }
         }
     });
     
