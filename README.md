@@ -4,6 +4,7 @@ An interactive data visualization project that explores the relationship between
 
 ## Overview 📊
 
+
 This project presents an engaging narrative about earthquakes and their varying impacts across different regions. It demonstrates how the same magnitude earthquake can have drastically different outcomes depending on the infrastructure and preparedness of the affected area.
 
 ## Features 🌟
